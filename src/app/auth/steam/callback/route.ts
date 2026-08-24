@@ -13,7 +13,10 @@ const STEAM_ID64_BASE = BigInt("76561197960265728");
 
 async function fetchStratzProfile(steamAccountId: number) {
   const apiKey = process.env.STRATZ_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.error("[auth/steam/callback] STRATZ_API_KEY is not set — skipping profile fetch");
+    return null;
+  }
 
   const res = await fetch("https://api.stratz.com/graphql", {
     method: "POST",
@@ -31,10 +34,16 @@ async function fetchStratzProfile(steamAccountId: number) {
       variables: { steamAccountId },
     }),
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error(`[auth/steam/callback] STRATZ profile fetch failed: HTTP ${res.status}`);
+    return null;
+  }
 
   const json = await res.json();
   const account = json?.data?.player?.steamAccount;
+  if (!account) {
+    console.error("[auth/steam/callback] STRATZ profile fetch returned no steamAccount:", JSON.stringify(json));
+  }
   return account ? { name: account.name as string, avatar: account.avatar as string } : null;
 }
 
@@ -89,7 +98,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?error=auth_failed", request.url));
   }
 
-  const profileInfo = await fetchStratzProfile(steamAccountId).catch(() => null);
+  const profileInfo = await fetchStratzProfile(steamAccountId).catch((err) => {
+    console.error("[auth/steam/callback] STRATZ profile fetch threw:", err);
+    return null;
+  });
 
   await admin
     .from("profiles")

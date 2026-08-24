@@ -94,30 +94,30 @@ export const HERO_STYLES: Record<number, HeroStyleVector> = {
   77:  { farm_dependency: 0.3,  fight_timing: 0.85, complexity: 0.5,  game_length_affinity: 0.4,  mobility: 0.6  }, // Tusk
   78:  { farm_dependency: 0.3,  fight_timing: 0.8,  complexity: 0.5,  game_length_affinity: 0.4,  mobility: 0.3  }, // Skywrath Mage
   79:  { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.4,  game_length_affinity: 0.55, mobility: 0.3  }, // Abaddon
-  80:  { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.7,  game_length_affinity: 0.55, mobility: 0.2  }, // Elder Titan
-  81:  { farm_dependency: 0.6,  fight_timing: 0.9,  complexity: 0.5,  game_length_affinity: 0.5,  mobility: 0.4  }, // Legion Commander
-  82:  { farm_dependency: 0.3,  fight_timing: 0.4,  complexity: 0.8,  game_length_affinity: 0.65, mobility: 0.1  }, // Techies
-  83:  { farm_dependency: 0.6,  fight_timing: 0.75, complexity: 0.8,  game_length_affinity: 0.55, mobility: 0.95 }, // Ember Spirit
-  84:  { farm_dependency: 0.3,  fight_timing: 0.85, complexity: 0.9,  game_length_affinity: 0.4,  mobility: 0.8  }, // Earth Spirit
-  85:  { farm_dependency: 0.45, fight_timing: 0.65, complexity: 0.5,  game_length_affinity: 0.6,  mobility: 0.2  }, // Underlord
-  86:  { farm_dependency: 0.95, fight_timing: 0.2,  complexity: 0.5,  game_length_affinity: 0.95, mobility: 0.5  }, // Terrorblade
-  87:  { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.7,  game_length_affinity: 0.55, mobility: 0.6  }, // Phoenix
-  88:  { farm_dependency: 0.2,  fight_timing: 0.6,  complexity: 0.85, game_length_affinity: 0.55, mobility: 0.4  }, // Oracle
-  89:  { farm_dependency: 0.25, fight_timing: 0.6,  complexity: 0.7,  game_length_affinity: 0.6,  mobility: 0.4  }, // Winter Wyvern
-  90:  { farm_dependency: 0.85, fight_timing: 0.3,  complexity: 0.95, game_length_affinity: 0.85, mobility: 0.6  }, // Arc Warden
-  91:  { farm_dependency: 0.7,  fight_timing: 0.7,  complexity: 0.6,  game_length_affinity: 0.6,  mobility: 0.85 }, // Monkey King
-  92:  { farm_dependency: 0.3,  fight_timing: 0.75, complexity: 0.7,  game_length_affinity: 0.5,  mobility: 0.6  }, // Dark Willow
-  93:  { farm_dependency: 0.5,  fight_timing: 0.8,  complexity: 0.7,  game_length_affinity: 0.5,  mobility: 0.8  }, // Pangolier
-  94:  { farm_dependency: 0.25, fight_timing: 0.65, complexity: 0.6,  game_length_affinity: 0.5,  mobility: 0.2  }, // Grimstroke
-  95:  { farm_dependency: 0.4,  fight_timing: 0.65, complexity: 0.6,  game_length_affinity: 0.5,  mobility: 0.7  }, // Hoodwink
-  96:  { farm_dependency: 0.55, fight_timing: 0.8,  complexity: 0.7,  game_length_affinity: 0.5,  mobility: 0.9  }, // Void Spirit
-  97:  { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.6,  game_length_affinity: 0.5,  mobility: 0.4  }, // Snapfire
-  98:  { farm_dependency: 0.45, fight_timing: 0.85, complexity: 0.5,  game_length_affinity: 0.5,  mobility: 0.3  }, // Mars
-  99:  { farm_dependency: 0.5,  fight_timing: 0.85, complexity: 0.4,  game_length_affinity: 0.5,  mobility: 0.4  }, // Dawnbreaker
-  100: { farm_dependency: 0.4,  fight_timing: 0.9,  complexity: 0.5,  game_length_affinity: 0.45, mobility: 0.7  }, // Marci
-  101: { farm_dependency: 0.45, fight_timing: 0.9,  complexity: 0.4,  game_length_affinity: 0.45, mobility: 0.5  }, // Primal Beast
-  102: { farm_dependency: 0.65, fight_timing: 0.55, complexity: 0.5,  game_length_affinity: 0.6,  mobility: 0.3  }, // Muerta
-  104: { farm_dependency: 0.3,  fight_timing: 0.65, complexity: 0.7,  game_length_affinity: 0.55, mobility: 0.4  }, // Ringmaster
+  103: { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.7,  game_length_affinity: 0.55, mobility: 0.2  }, // Elder Titan
+  104: { farm_dependency: 0.6,  fight_timing: 0.9,  complexity: 0.5,  game_length_affinity: 0.5,  mobility: 0.4  }, // Legion Commander
+  105: { farm_dependency: 0.3,  fight_timing: 0.4,  complexity: 0.8,  game_length_affinity: 0.65, mobility: 0.1  }, // Techies
+  106: { farm_dependency: 0.6,  fight_timing: 0.75, complexity: 0.8,  game_length_affinity: 0.55, mobility: 0.95 }, // Ember Spirit
+  107: { farm_dependency: 0.3,  fight_timing: 0.85, complexity: 0.9,  game_length_affinity: 0.4,  mobility: 0.8  }, // Earth Spirit
+  108: { farm_dependency: 0.45, fight_timing: 0.65, complexity: 0.5,  game_length_affinity: 0.6,  mobility: 0.2  }, // Underlord
+  109: { farm_dependency: 0.95, fight_timing: 0.2,  complexity: 0.5,  game_length_affinity: 0.95, mobility: 0.5  }, // Terrorblade
+  110: { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.7,  game_length_affinity: 0.55, mobility: 0.6  }, // Phoenix
+  111: { farm_dependency: 0.2,  fight_timing: 0.6,  complexity: 0.85, game_length_affinity: 0.55, mobility: 0.4  }, // Oracle
+  112: { farm_dependency: 0.25, fight_timing: 0.6,  complexity: 0.7,  game_length_affinity: 0.6,  mobility: 0.4  }, // Winter Wyvern
+  113: { farm_dependency: 0.85, fight_timing: 0.3,  complexity: 0.95, game_length_affinity: 0.85, mobility: 0.6  }, // Arc Warden
+  114: { farm_dependency: 0.7,  fight_timing: 0.7,  complexity: 0.6,  game_length_affinity: 0.6,  mobility: 0.85 }, // Monkey King
+  119: { farm_dependency: 0.3,  fight_timing: 0.75, complexity: 0.7,  game_length_affinity: 0.5,  mobility: 0.6  }, // Dark Willow
+  120: { farm_dependency: 0.5,  fight_timing: 0.8,  complexity: 0.7,  game_length_affinity: 0.5,  mobility: 0.8  }, // Pangolier
+  121: { farm_dependency: 0.25, fight_timing: 0.65, complexity: 0.6,  game_length_affinity: 0.5,  mobility: 0.2  }, // Grimstroke
+  123: { farm_dependency: 0.4,  fight_timing: 0.65, complexity: 0.6,  game_length_affinity: 0.5,  mobility: 0.7  }, // Hoodwink
+  126: { farm_dependency: 0.55, fight_timing: 0.8,  complexity: 0.7,  game_length_affinity: 0.5,  mobility: 0.9  }, // Void Spirit
+  128: { farm_dependency: 0.3,  fight_timing: 0.7,  complexity: 0.6,  game_length_affinity: 0.5,  mobility: 0.4  }, // Snapfire
+  129: { farm_dependency: 0.45, fight_timing: 0.85, complexity: 0.5,  game_length_affinity: 0.5,  mobility: 0.3  }, // Mars
+  131: { farm_dependency: 0.3,  fight_timing: 0.65, complexity: 0.7,  game_length_affinity: 0.55, mobility: 0.4  }, // Ringmaster
+  135: { farm_dependency: 0.5,  fight_timing: 0.85, complexity: 0.4,  game_length_affinity: 0.5,  mobility: 0.4  }, // Dawnbreaker
+  136: { farm_dependency: 0.4,  fight_timing: 0.9,  complexity: 0.5,  game_length_affinity: 0.45, mobility: 0.7  }, // Marci
+  137: { farm_dependency: 0.45, fight_timing: 0.9,  complexity: 0.4,  game_length_affinity: 0.45, mobility: 0.5  }, // Primal Beast
+  138: { farm_dependency: 0.65, fight_timing: 0.55, complexity: 0.5,  game_length_affinity: 0.6,  mobility: 0.3  }, // Muerta
 };
 
 export function styleVector(heroId: number): number[] {
