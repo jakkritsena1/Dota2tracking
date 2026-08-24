@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AppShell from "@/components/layout/AppShell";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: {
@@ -40,6 +41,7 @@ export default async function RootLayout({
     <html lang="th" suppressHydrationWarning>
       <body>
         <AppShell profile={profile}>{children}</AppShell>
+        <SpeedInsights />
       </body>
     </html>
   );
