@@ -33,7 +33,7 @@ export function MatchTable({ matches }: MatchTableProps) {
     <section aria-label="แมตช์ล่าสุด">
       <div className="flex items-center justify-between mb-3">
         <p className="section-title mb-0">แมตช์ล่าสุด</p>
-        {activeTag && (
+        {activeTag ? (
           <button
             onClick={() => setActiveTag(null)}
             className="text-xs text-accent-blue hover:underline focus-ring"
@@ -41,6 +41,10 @@ export function MatchTable({ matches }: MatchTableProps) {
           >
             ล้างการกรอง ({TAG_LABELS[activeTag]?.label ?? activeTag})
           </button>
+        ) : (
+          <Link href="/matches" className="text-xs text-accent-blue hover:underline focus-ring">
+            ดูทั้งหมด →
+          </Link>
         )}
       </div>
 

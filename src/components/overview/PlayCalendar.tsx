@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo } from "react";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import { th } from "date-fns/locale";
@@ -110,6 +111,13 @@ export function PlayCalendar({ dailySummaries }: Props) {
         </div>
         <span>ชนะมาก</span>
       </div>
+
+      <Link
+        href="/progress"
+        className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+      >
+        ดูสถิติแยกวัน →
+      </Link>
     </div>
   );
 }

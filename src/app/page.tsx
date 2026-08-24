@@ -12,6 +12,7 @@ import { MmrChart } from "@/components/overview/MmrChart";
 import { WeeklyFocus } from "@/components/overview/WeeklyFocus";
 import { NextGameAdvice } from "@/components/overview/NextGameAdvice";
 import { PlayCalendar } from "@/components/overview/PlayCalendar";
+import { MostPlayedHeroes } from "@/components/overview/MostPlayedHeroes";
 import { RangeSelector } from "@/components/shared/RangeSelector";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { KpiCardSkeleton } from "@/components/shared/SkeletonCard";
@@ -57,22 +58,25 @@ export default async function OverviewPage({ searchParams }: PageProps) {
       p_role: role === "all" ? null : role,
     }),
 
-    db
-      .from("matches")
-      .select(`
-        match_id, start_time, duration_sec, is_win,
-        hero_id, role, kills, deaths, assists,
-        gpm, imp, lane_outcome,
-        match_tags ( tag, confidence, reason )
-      `)
-      .gte("start_time", rangeStart.toISOString())
-      .eq(role === "all" ? "lobby_type" : "role", role === "all" ? "RANKED" : role)
-      .order("start_time", { ascending: false })
-      .limit(20),
+    (() => {
+      let q = db
+        .from("matches")
+        .select(`
+          match_id, start_time, duration_sec, is_win,
+          hero_id, role, kills, deaths, assists,
+          gpm, imp, lane_outcome,
+          match_tags ( tag, confidence, reason )
+        `)
+        .gte("start_time", rangeStart.toISOString())
+        .in("lobby_type", ["RANKED", "ranked"]);
+      if (role !== "all") q = q.eq("role", role);
+      return q.order("start_time", { ascending: false }).limit(20);
+    })(),
 
     db
       .from("matches")
       .select("match_id, is_win, hero_id, kills, deaths, assists, imp, start_time")
+      .in("lobby_type", ["RANKED", "ranked"])
       .order("start_time", { ascending: false })
       .limit(10),
 
@@ -167,9 +171,10 @@ export default async function OverviewPage({ searchParams }: PageProps) {
       </div>
 
       {/* OV-5, OV-9, OV-10 */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <WeeklyFocus weaknesses={weaknesses} />
         <NextGameAdvice heroPool={heroPool} role={role === "all" ? null : role} />
+        <MostPlayedHeroes heroPool={heroPool} />
         <PlayCalendar dailySummaries={dailySummaries} />
       </div>
 

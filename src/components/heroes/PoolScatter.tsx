@@ -102,7 +102,7 @@ export function PoolScatter({ data }: Props) {
       <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
         <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-win inline-block" />เล่นดี + เมต้าดี</div>
         <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-accent-blue inline-block" />เล่นดี แต่เมต้าอ่อน</div>
-        <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-accent-yellow inline-block" />เมต้าดี แต่ยังไม่ถนัด</div>
+        <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-accent-orange inline-block" />เมต้าดี แต่ยังไม่ถนัด</div>
         <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-loss inline-block" />หลีกเลี่ยง</div>
       </div>
     </div>

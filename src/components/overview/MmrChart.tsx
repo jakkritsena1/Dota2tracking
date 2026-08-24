@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   LineChart,
   Line,
@@ -147,6 +148,13 @@ export function MmrChart({ data }: MmrChartProps) {
           ))}
         </tbody>
       </table>
+
+      <Link
+        href="/progress"
+        className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+      >
+        ดูพัฒนาการเพิ่มเติม →
+      </Link>
     </section>
   );
 }

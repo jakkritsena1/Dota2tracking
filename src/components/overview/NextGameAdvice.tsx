@@ -21,7 +21,7 @@ function labelColor(label: string): string {
   if (label === "เมต้าดี") return "text-win bg-win/10";
   if (label === "ชง") return "text-accent-blue bg-accent-blue/10";
   if (label === "กำลังฝึก") return "text-text-secondary bg-border/30";
-  return "text-accent-yellow bg-accent-yellow/10";
+  return "text-accent-gold bg-accent-gold/10";
 }
 
 export function NextGameAdvice({ heroPool, role }: Props) {
