@@ -57,7 +57,7 @@ export function StreakStatsCard({ stats }: Props) {
         />
       </div>
 
-      <div className="mt-4 p-3 rounded-lg bg-card-hover text-xs text-text-secondary">
+      <div className="mt-4 p-3 rounded-lg bg-bg-hover text-xs text-text-secondary">
         {isTilted ? (
           <>
             <span className="text-loss font-medium">โอกาสแพ้เพิ่มขึ้น {((tiltFactor - 1) * 100).toFixed(0)}%</span>

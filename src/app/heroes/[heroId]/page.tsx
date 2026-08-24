@@ -40,6 +40,7 @@ export default async function HeroDetailPage({ params }: PageProps) {
       .from("matches")
       .select("match_id, start_time, is_win, kills, deaths, assists, gpm, xpm, imp, role, rank_tier")
       .eq("hero_id", id)
+      .in("lobby_type", ["RANKED", "ranked"])
       .order("start_time", { ascending: false })
       .limit(50),
 
@@ -191,7 +192,7 @@ export default async function HeroDetailPage({ params }: PageProps) {
             </thead>
             <tbody className="divide-y divide-border/50">
               {matches.slice(0, 20).map(m => (
-                <tr key={m.match_id} className="hover:bg-card-hover transition-colors">
+                <tr key={m.match_id} className="hover:bg-bg-hover transition-colors">
                   <td className="py-2 pr-4 text-text-secondary whitespace-nowrap">
                     <Link href={`/match/${m.match_id}`} className="hover:text-accent-blue transition-colors">
                       {formatMatchDate(m.start_time)}

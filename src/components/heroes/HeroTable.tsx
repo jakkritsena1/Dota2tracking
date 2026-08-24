@@ -56,7 +56,7 @@ export function HeroTable({ heroes }: Props) {
       <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
         <h2 className="section-title">ฮีโร่ทั้งหมด</h2>
         <select
-          className="bg-card-hover border border-border rounded-md px-2 py-1 text-sm text-text-primary focus:outline-none"
+          className="bg-bg-hover border border-border rounded-md px-2 py-1 text-sm text-text-primary focus:outline-none"
           value={roleFilter}
           onChange={e => setRoleFilter(e.target.value)}
         >
@@ -83,7 +83,7 @@ export function HeroTable({ heroes }: Props) {
             {sorted.map(h => {
               const heroName = HEROES[h.hero_id]?.displayName ?? `Hero ${h.hero_id}`;
               return (
-                <tr key={`${h.hero_id}-${h.role}`} className="hover:bg-card-hover transition-colors">
+                <tr key={`${h.hero_id}-${h.role}`} className="hover:bg-bg-hover transition-colors">
                   <td className="py-2 px-3">
                     <Link href={`/heroes/${h.hero_id}`} className="flex items-center gap-2 hover:text-accent-blue transition-colors">
                       <Image

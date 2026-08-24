@@ -49,7 +49,7 @@ function GoalRow({ goal, onUpdate }: { goal: GoalProgressRow; onUpdate: () => vo
   }
 
   return (
-    <div className="p-3 rounded-lg bg-card-hover group relative">
+    <div className="p-3 rounded-lg bg-bg-hover group relative">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-medium text-text-primary pr-14 truncate">{goal.title}</p>
         <span className={`text-xs font-bold shrink-0 ${passed ? "text-win" : "text-text-secondary"}`}>
@@ -125,7 +125,7 @@ function AddGoalForm({ onSuccess }: { onSuccess: () => void }) {
     <form onSubmit={handleSubmit} className="p-3 rounded-lg border border-border/60 space-y-3">
       <p className="text-xs font-medium text-text-secondary">ตั้งเป้าหมายใหม่</p>
       <input
-        className="w-full bg-card-hover border border-border rounded-md px-3 py-1.5 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-1 focus:ring-accent-blue"
+        className="w-full bg-bg-hover border border-border rounded-md px-3 py-1.5 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-1 focus:ring-accent-blue"
         placeholder="เช่น ตายไม่เกิน 3 ใน 7 เกม"
         value={title}
         onChange={e => setTitle(e.target.value)}
@@ -133,7 +133,7 @@ function AddGoalForm({ onSuccess }: { onSuccess: () => void }) {
       />
       <div className="flex gap-2">
         <select
-          className="flex-1 bg-card-hover border border-border rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none"
+          className="flex-1 bg-bg-hover border border-border rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none"
           value={metric}
           onChange={e => setMetric(e.target.value)}
         >
@@ -142,7 +142,7 @@ function AddGoalForm({ onSuccess }: { onSuccess: () => void }) {
           ))}
         </select>
         <select
-          className="w-16 bg-card-hover border border-border rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none"
+          className="w-16 bg-bg-hover border border-border rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none"
           value={op}
           onChange={e => setOp(e.target.value)}
         >
@@ -150,7 +150,7 @@ function AddGoalForm({ onSuccess }: { onSuccess: () => void }) {
         </select>
         <input
           type="number"
-          className="w-20 bg-card-hover border border-border rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none"
+          className="w-20 bg-bg-hover border border-border rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none"
           value={value}
           onChange={e => setValue(e.target.value)}
           required

@@ -49,7 +49,7 @@ export function WeaknessCards({ weaknesses }: Props) {
           const cfg = METRIC_CONFIG[w.metric] ?? { label: w.metric, description: "", unit: "" };
           const delta = w.est_delta_winrate ?? 0;
           return (
-            <div key={w.id} className="p-3 rounded-lg bg-card-hover">
+            <div key={w.id} className="p-3 rounded-lg bg-bg-hover">
               <div className="flex items-start gap-3 mb-2">
                 <span className="shrink-0 w-6 h-6 rounded-full bg-loss/20 text-loss text-xs font-bold flex items-center justify-center mt-0.5">
                   {i + 1}

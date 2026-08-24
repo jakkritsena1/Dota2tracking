@@ -44,7 +44,7 @@ export function PatchImpact({ heroes, previousMeta }: Props) {
             <Link
               key={h.hero_id}
               href={`/heroes/${h.hero_id}`}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card-hover transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-bg-hover transition-colors"
             >
               <Image
                 src={heroIconUrl(h.hero_id)}

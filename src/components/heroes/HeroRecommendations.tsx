@@ -63,7 +63,7 @@ export function HeroRecommendations({ pool }: Props) {
             <Link
               key={`${h.hero_id}-${h.role}`}
               href={`/heroes/${h.hero_id}`}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-card-hover transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-bg-hover transition-colors"
             >
               <span className="text-text-secondary text-sm w-5 shrink-0">{i + 1}</span>
               <Image

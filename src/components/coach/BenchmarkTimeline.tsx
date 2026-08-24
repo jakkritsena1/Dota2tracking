@@ -32,12 +32,12 @@ export function BenchmarkTimeline({ data, benchmarks }: Props) {
         </p>
         {latestGpm && (
           <div className="mt-4 grid grid-cols-2 gap-4">
-            <div className="p-3 rounded-lg bg-card-hover text-center">
+            <div className="p-3 rounded-lg bg-bg-hover text-center">
               <p className="text-xs text-text-secondary">Bracket p50 GPM</p>
               <p className="text-xl font-bold text-accent-blue">{latestGpm.p50}</p>
             </div>
             {latestXpm && (
-              <div className="p-3 rounded-lg bg-card-hover text-center">
+              <div className="p-3 rounded-lg bg-bg-hover text-center">
                 <p className="text-xs text-text-secondary">Bracket p50 XPM</p>
                 <p className="text-xl font-bold text-accent-blue">{latestXpm.p50}</p>
               </div>

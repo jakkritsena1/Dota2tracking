@@ -35,6 +35,7 @@ export default async function MatchesPage({ searchParams }: PageProps) {
       match_tags ( tag, confidence )
     `)
     .gte("start_time", rangeStart.toISOString())
+    .in("lobby_type", ["RANKED", "ranked"])
     .order("start_time", { ascending: false })
     .limit(100);
 
