@@ -15,7 +15,10 @@ const METRIC_CONFIG: Record<string, { label: string; description: string; unit: 
 };
 
 function ImpactBar({ value }: { value: number }) {
-  const pct = Math.min(100, Math.max(0, value * 100 / 0.15));
+  // value is est_delta_winrate — already percentage-point scale (see
+  // compute-weaknesses/index.ts), not a 0-1 fraction. Typical range is
+  // 0-15pp, so cap the bar at 15 to keep it meaningful for ranking.
+  const pct = Math.min(100, Math.max(0, (value / 15) * 100));
   return (
     <div className="h-1.5 bg-border/40 rounded-full overflow-hidden">
       <div
@@ -60,7 +63,7 @@ export function WeaknessCards({ weaknesses }: Props) {
                 </div>
                 {delta > 0 && (
                   <div className="text-right shrink-0">
-                    <p className="text-win font-bold text-sm">+{(delta * 100).toFixed(1)}%</p>
+                    <p className="text-win font-bold text-sm">+{delta.toFixed(1)}%</p>
                     <p className="text-[10px] text-text-secondary">est. Δ WR</p>
                   </div>
                 )}

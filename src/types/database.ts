@@ -65,6 +65,9 @@ export interface Weakness {
   metric: string;
   current_value: number | null;
   benchmark_value: number | null;
+  // Already percentage-point scale (e.g. 3.6 means "+3.6% win rate"),
+  // NOT a 0-1 fraction — see supabase/functions/compute-weaknesses/index.ts.
+  // Do not multiply by 100 when displaying.
   est_delta_winrate: number | null;
   evidence_matches: number[] | null;
   rank_order: number | null;

@@ -32,8 +32,10 @@ export function WeeklyFocus({ weaknesses }: Props) {
       <ol className="mt-4 space-y-3">
         {weaknesses.map((w, i) => {
           const label = METRIC_LABELS[w.metric] ?? w.metric;
+          // est_delta_winrate is already percentage-point scale, not a 0-1
+          // fraction — see compute-weaknesses/index.ts.
           const delta = w.est_delta_winrate != null
-            ? `+${(w.est_delta_winrate * 100).toFixed(1)}% win rate`
+            ? `+${w.est_delta_winrate.toFixed(1)}% win rate`
             : null;
           return (
             <li key={w.id} className="flex items-start gap-3">
