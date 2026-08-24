@@ -13,12 +13,21 @@ interface Props {
 const DAYS = 28; // 4 weeks
 const TILT_THRESHOLD = 3; // ≥3 losses in a row → tilt warning
 
-function intensity(games: number, winRate: number): string {
+// Color encodes win rate, size encodes volume — same two-dimensional
+// encoding as a GitHub contribution graph, so a light win day and a heavy
+// win day both read as "green" but are visually distinct at a glance.
+function colorClass(games: number, winRate: number): string {
   if (games === 0) return "bg-border/20";
-  if (winRate >= 60) return "bg-win/70";
-  if (winRate >= 50) return "bg-win/40";
-  if (winRate >= 40) return "bg-loss/40";
-  return "bg-loss/70";
+  if (winRate >= 60) return "bg-win";
+  if (winRate >= 50) return "bg-win/60";
+  if (winRate >= 40) return "bg-loss/60";
+  return "bg-loss";
+}
+
+function sizePct(games: number, maxGames: number): number {
+  if (games === 0) return 0;
+  if (maxGames <= 1) return 100;
+  return 40 + Math.min(1, games / maxGames) * 60;
 }
 
 export function PlayCalendar({ dailySummaries }: Props) {
@@ -32,6 +41,7 @@ export function PlayCalendar({ dailySummaries }: Props) {
   }, [dailySummaries]);
 
   const totalGames = dailySummaries.reduce((a, d) => a + d.games, 0);
+  const maxGamesInDay = Math.max(1, ...dailySummaries.map((d) => d.games));
   const showTiltWarning = useMemo(() => {
     if (totalGames < MIN_GAMES_FOR_INSIGHT) return false;
     // Check last 5 days for consecutive losses
@@ -70,14 +80,19 @@ export function PlayCalendar({ dailySummaries }: Props) {
           const label = format(day, "d MMM", { locale: th });
           const games = s?.games ?? 0;
           const wr = s?.win_rate ?? 0;
+          const size = sizePct(games, maxGamesInDay);
           return (
             <div
               key={key}
-              className={`aspect-square rounded-sm ${intensity(games, wr)} relative group cursor-default`}
+              className="aspect-square relative group cursor-default flex items-center justify-center"
               title={games > 0 ? `${label}: ${games} เกม, WR ${wr.toFixed(0)}%` : label}
             >
+              <div
+                className={`rounded-sm ${colorClass(games, wr)} transition-all`}
+                style={{ width: `${size}%`, height: `${size}%` }}
+              />
               {games > 0 && (
-                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-text-primary/80 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-text-primary opacity-0 group-hover:opacity-100 transition-opacity mix-blend-difference">
                   {games}
                 </span>
               )}
@@ -89,7 +104,7 @@ export function PlayCalendar({ dailySummaries }: Props) {
       <div className="mt-3 flex items-center gap-2 text-[10px] text-text-secondary">
         <span>ไม่ได้เล่น</span>
         <div className="flex gap-1">
-          {["bg-border/20","bg-loss/70","bg-loss/40","bg-win/40","bg-win/70"].map(c => (
+          {["bg-border/20","bg-loss","bg-loss/60","bg-win/60","bg-win"].map(c => (
             <div key={c} className={`w-3 h-3 rounded-sm ${c}`} />
           ))}
         </div>

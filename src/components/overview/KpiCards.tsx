@@ -41,39 +41,57 @@ export function KpiCards({ summary, totalGames }: KpiCardsProps) {
     },
   ];
 
+  const winRatePct = summary.win_rate ?? null;
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {cards.map((card) => (
-        <article
-          key={card.label}
-          className="card space-y-1"
-          aria-label={card.description}
-        >
-          <p className="text-text-muted text-xs font-medium uppercase tracking-wider">
-            {card.label}
-          </p>
+      {cards.map((card) => {
+        const isWinRate = card.label === "Win Rate";
+        return (
+          <article
+            key={card.label}
+            className="card space-y-1"
+            aria-label={card.description}
+          >
+            <p className="text-text-muted text-xs font-medium uppercase tracking-wider">
+              {card.label}
+            </p>
 
-          <p className="text-2xl font-bold text-text-primary">
-            {card.value}
-          </p>
+            <p className="text-2xl font-bold text-text-primary">
+              {card.value}
+            </p>
 
-          <div className="flex items-center justify-between">
-            <p className="text-text-muted text-xs">{card.sub}</p>
+            {isWinRate && winRatePct !== null && (
+              <div className="h-1 w-full rounded-full bg-bg-secondary overflow-hidden">
+                <div
+                  className={cn("h-full", winRatePct >= 50 ? "bg-win" : "bg-loss")}
+                  style={{ width: `${Math.min(100, Math.max(0, winRatePct))}%` }}
+                />
+              </div>
+            )}
 
-            {insufficientSamples ? (
-              <span
-                className="inline-flex items-center gap-1 text-xs text-accent-orange px-1.5 py-0.5 rounded bg-bg-secondary"
-                title="ตัวอย่างน้อย — ต้องการ 10 เกมขึ้นไป"
-              >
-                <AlertTriangle size={10} aria-hidden />
-                น้อย
-              </span>
-            ) : card.delta !== null ? (
-              <DeltaBadge delta={card.delta} />
-            ) : null}
-          </div>
-        </article>
-      ))}
+            <div className="flex items-center justify-between">
+              <p className="text-text-muted text-xs">{card.sub}</p>
+
+              {insufficientSamples ? (
+                <span
+                  className="inline-flex items-center gap-1 text-xs text-accent-orange px-1.5 py-0.5 rounded bg-bg-secondary"
+                  title="ตัวอย่างน้อย — ต้องการ 10 เกมขึ้นไป"
+                >
+                  <AlertTriangle size={10} aria-hidden />
+                  น้อย
+                </span>
+              ) : card.delta !== null ? (
+                <DeltaBadge delta={card.delta} />
+              ) : null}
+            </div>
+          </article>
+        );
+      })}
+
+      <p className="col-span-2 lg:col-span-4 text-xs text-text-secondary -mt-1">
+        <span className="text-accent-gold font-semibold">{totalGames}</span> เกมในช่วงที่เลือก
+      </p>
     </div>
   );
 }

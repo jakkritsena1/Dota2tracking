@@ -10,34 +10,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark STRATZ-inspired palette
+        // STRATZ-style dark palette — near-black surfaces, semantic accents
+        // (green/red = result, gold = volume/count). Colour carries meaning
+        // here, not just decoration — see globals.css for the rationale.
         bg: {
-          primary: "#0F1923",
-          secondary: "#1A2534",
-          card: "#1E2D3E",
-          hover: "#243447",
+          primary: "#000000",
+          secondary: "#0A0A0A",
+          card: "#141414",
+          hover: "#1F1F1F",
         },
         accent: {
           blue: "#4C9BE8",
-          "blue-dim": "#2A5F8F",
-          green: "#45B26B",
-          "green-dim": "#1E5C37",
-          red: "#EF4444",
-          "red-dim": "#7A1F1F",
+          "blue-dim": "#1B3A57",
+          green: "#2ACB4F",
+          "green-dim": "#123A1E",
+          red: "#EC041F",
+          "red-dim": "#4D0810",
+          gold: "#CBB02A",
+          "gold-dim": "#3D340C",
           orange: "#F59E0B",
           purple: "#8B5CF6",
         },
         border: {
-          DEFAULT: "#2A3B50",
-          strong: "#3D5166",
+          DEFAULT: "#262626",
+          strong: "#3D3D3D",
         },
         text: {
-          primary: "#F0F4F8",
-          secondary: "#8B9DB5",
-          muted: "#566D87",
+          primary: "#E6E6E6",
+          secondary: "#999999",
+          muted: "#5C5C5C",
         },
-        win: "#45B26B",
-        loss: "#EF4444",
+        win: "#2ACB4F",
+        loss: "#EC041F",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

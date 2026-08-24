@@ -51,27 +51,27 @@ export function ImpVsMmrChart({ data }: Props) {
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3B4C" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
             <XAxis
               dataKey="avg_imp"
               type="number"
               name="IMP"
-              tick={{ fontSize: 10, fill: "#8899AA" }}
+              tick={{ fontSize: 10, fill: "#999999" }}
               tickLine={false}
-              label={{ value: "Impact", position: "insideBottom", offset: -4, fill: "#8899AA", fontSize: 10 }}
+              label={{ value: "Impact", position: "insideBottom", offset: -4, fill: "#999999", fontSize: 10 }}
             />
             <YAxis
               dataKey="mmr_delta"
               type="number"
               name="MMR delta"
-              tick={{ fontSize: 10, fill: "#8899AA" }}
+              tick={{ fontSize: 10, fill: "#999999" }}
               tickLine={false}
               axisLine={false}
               width={36}
             />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine x={avgImp} stroke="#4C9BE8" strokeDasharray="3 3" />
-            <ReferenceLine y={0} stroke="#8899AA" />
+            <ReferenceLine y={0} stroke="#999999" />
             <Scatter
               data={chartData}
               fill="#4C9BE8"

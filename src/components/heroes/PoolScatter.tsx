@@ -31,10 +31,10 @@ const CustomTooltip = ({ active, payload }: {
 function dotColor(d: HeroPoolWithMetaRow): string {
   const goodPlayer = d.player_wr >= 0.5;
   const goodMeta = (d.meta_wr ?? 0.5) >= 0.51;
-  if (goodPlayer && goodMeta) return "#45B26B"; // green: strong + meta
+  if (goodPlayer && goodMeta) return "#2ACB4F"; // green: strong + meta
   if (goodPlayer && !goodMeta) return "#4C9BE8"; // blue: strong, meta weak
   if (!goodPlayer && goodMeta) return "#F59E0B"; // yellow: meta ok, you struggle
-  return "#EF4444"; // red: avoid
+  return "#EC041F"; // red: avoid
 }
 
 export function PoolScatter({ data }: Props) {
@@ -65,28 +65,28 @@ export function PoolScatter({ data }: Props) {
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 4, right: 16, bottom: 16, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3B4C" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
             <XAxis
               dataKey="player_wr_pct"
               type="number"
               domain={[0, 100]}
-              tick={{ fontSize: 10, fill: "#8899AA" }}
+              tick={{ fontSize: 10, fill: "#999999" }}
               tickLine={false}
-              label={{ value: "Player WR %", position: "insideBottom", offset: -8, fill: "#8899AA", fontSize: 10 }}
+              label={{ value: "Player WR %", position: "insideBottom", offset: -8, fill: "#999999", fontSize: 10 }}
             />
             <YAxis
               dataKey="meta_wr_pct"
               type="number"
               domain={[40, 60]}
-              tick={{ fontSize: 10, fill: "#8899AA" }}
+              tick={{ fontSize: 10, fill: "#999999" }}
               tickLine={false}
               axisLine={false}
               width={36}
-              label={{ value: "Meta WR %", angle: -90, position: "insideLeft", fill: "#8899AA", fontSize: 10 }}
+              label={{ value: "Meta WR %", angle: -90, position: "insideLeft", fill: "#999999", fontSize: 10 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine x={50} stroke="#8899AA" strokeDasharray="3 3" />
-            <ReferenceLine y={51} stroke="#8899AA" strokeDasharray="3 3" />
+            <ReferenceLine x={50} stroke="#999999" strokeDasharray="3 3" />
+            <ReferenceLine y={51} stroke="#999999" strokeDasharray="3 3" />
             <Scatter
               data={chartData}
               onClick={(d: HeroPoolWithMetaRow) => router.push(`/heroes/${d.hero_id}`)}

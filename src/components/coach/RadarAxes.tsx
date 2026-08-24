@@ -55,15 +55,15 @@ export function RadarAxes({ scores }: Props) {
       <div className="h-72 mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} margin={{ top: 16, right: 24, bottom: 16, left: 24 }}>
-            <PolarGrid stroke="#2A3B4C" />
+            <PolarGrid stroke="#262626" />
             <PolarAngleAxis
               dataKey="axis"
-              tick={{ fontSize: 11, fill: "#8899AA" }}
+              tick={{ fontSize: 11, fill: "#999999" }}
             />
             <PolarRadiusAxis
               angle={30}
               domain={[0, 100]}
-              tick={{ fontSize: 9, fill: "#8899AA" }}
+              tick={{ fontSize: 9, fill: "#999999" }}
               axisLine={false}
             />
             <Radar

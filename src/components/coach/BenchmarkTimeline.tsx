@@ -54,12 +54,12 @@ export function BenchmarkTimeline({ data, benchmarks }: Props) {
       <div className="h-56 mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3B4C" />
-            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} axisLine={false} width={36} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
+            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} axisLine={false} width={36} />
             <Tooltip
-              contentStyle={{ background: "#1A2A3A", border: "1px solid #2A3B4C", borderRadius: 8 }}
-              labelStyle={{ color: "#8899AA", fontSize: 11 }}
+              contentStyle={{ background: "#141414", border: "1px solid #262626", borderRadius: 8 }}
+              labelStyle={{ color: "#999999", fontSize: 11 }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Line
@@ -73,7 +73,7 @@ export function BenchmarkTimeline({ data, benchmarks }: Props) {
             <Line
               dataKey="p50_gpm"
               name="Bracket p50"
-              stroke="#8899AA"
+              stroke="#999999"
               strokeWidth={1.5}
               dot={false}
               strokeDasharray="4 2"
@@ -82,9 +82,9 @@ export function BenchmarkTimeline({ data, benchmarks }: Props) {
             {latestGpm?.p25 != null && (
               <ReferenceLine
                 y={latestGpm.p25}
-                stroke="#EF4444"
+                stroke="#EC041F"
                 strokeDasharray="3 3"
-                label={{ value: "p25", fill: "#EF4444", fontSize: 9 }}
+                label={{ value: "p25", fill: "#EC041F", fontSize: 9 }}
               />
             )}
           </LineChart>

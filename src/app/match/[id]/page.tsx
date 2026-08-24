@@ -334,14 +334,14 @@ function NetworthTimeline({ data }: { data: number[] }) {
           <line
             x1={0} y1={height / 2}
             x2={width} y2={height / 2}
-            stroke="#2A3B50" strokeWidth={1}
+            stroke="#262626" strokeWidth={1}
           />
 
           {/* Positive area (our favour) */}
           <polyline
             points={points.join(" ")}
             fill="none"
-            stroke={throwMin ? "#F59E0B" : "#45B26B"}
+            stroke={throwMin ? "#F59E0B" : "#2ACB4F"}
             strokeWidth={2}
           />
 
@@ -353,14 +353,14 @@ function NetworthTimeline({ data }: { data: number[] }) {
                 y1={4}
                 x2={(throwMin / (data.length - 1)) * width}
                 y2={height - 4}
-                stroke="#EF4444"
+                stroke="#EC041F"
                 strokeWidth={1.5}
                 strokeDasharray="4 2"
               />
               <text
                 x={(throwMin / (data.length - 1)) * width + 3}
                 y={14}
-                fill="#EF4444"
+                fill="#EC041F"
                 fontSize={10}
               >
                 Throw ~{throwMin}m
@@ -374,7 +374,7 @@ function NetworthTimeline({ data }: { data: number[] }) {
               key={min}
               x={(min / (data.length - 1)) * width}
               y={height + 14}
-              fill="#566D87"
+              fill="#5C5C5C"
               fontSize={10}
               textAnchor="middle"
             >

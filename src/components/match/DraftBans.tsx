@@ -58,8 +58,8 @@ export default function DraftBans({ pickBans }: DraftBansProps) {
                     viewBox="0 0 32 32"
                     aria-hidden
                   >
-                    <line x1="5" y1="5" x2="27" y2="27" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
-                    <line x1="27" y1="5" x2="5" y2="27" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" />
+                    <line x1="5" y1="5" x2="27" y2="27" stroke="#EC041F" strokeWidth="2.5" strokeLinecap="round" />
+                    <line x1="27" y1="5" x2="5" y2="27" stroke="#EC041F" strokeWidth="2.5" strokeLinecap="round" />
                   </svg>
                 </div>
               ))}

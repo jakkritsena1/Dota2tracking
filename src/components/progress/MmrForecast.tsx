@@ -79,12 +79,12 @@ export function MmrForecast({ series, forecast }: Props) {
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3B4C" />
-            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} axisLine={false} width={36} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
+            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} axisLine={false} width={36} />
             <Tooltip
-              contentStyle={{ background: "#1A2A3A", border: "1px solid #2A3B4C", borderRadius: 8 }}
-              labelStyle={{ color: "#8899AA", fontSize: 11 }}
+              contentStyle={{ background: "#141414", border: "1px solid #262626", borderRadius: 8 }}
+              labelStyle={{ color: "#999999", fontSize: 11 }}
               formatter={(v: number) => [rankTierToName(v), ""]}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -98,7 +98,7 @@ export function MmrForecast({ series, forecast }: Props) {
             <Line
               dataKey="ma7"
               name="MA-7"
-              stroke="#45B26B"
+              stroke="#2ACB4F"
               strokeWidth={2}
               dot={false}
               strokeDasharray="4 2"
@@ -116,12 +116,12 @@ export function MmrForecast({ series, forecast }: Props) {
                 data={forecastPoints}
                 margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A3B4C" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} />
-                <YAxis tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} axisLine={false} width={36} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} axisLine={false} width={36} />
                 <Tooltip
-                  contentStyle={{ background: "#1A2A3A", border: "1px solid #2A3B4C", borderRadius: 8 }}
-                  labelStyle={{ color: "#8899AA", fontSize: 11 }}
+                  contentStyle={{ background: "#141414", border: "1px solid #262626", borderRadius: 8 }}
+                  labelStyle={{ color: "#999999", fontSize: 11 }}
                 />
                 <Line
                   dataKey="projected"
@@ -132,7 +132,7 @@ export function MmrForecast({ series, forecast }: Props) {
                   dot={false}
                 />
                 {forecast?.confidence_low != null && (
-                  <ReferenceLine y={forecast.confidence_low} stroke="#4C9BE8" strokeDasharray="3 3" label={{ value: "90% CI", fill: "#8899AA", fontSize: 10 }} />
+                  <ReferenceLine y={forecast.confidence_low} stroke="#4C9BE8" strokeDasharray="3 3" label={{ value: "90% CI", fill: "#999999", fontSize: 10 }} />
                 )}
                 {forecast?.confidence_high != null && (
                   <ReferenceLine y={forecast.confidence_high} stroke="#4C9BE8" strokeDasharray="3 3" />

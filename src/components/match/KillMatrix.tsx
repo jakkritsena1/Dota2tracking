@@ -76,15 +76,15 @@ export default function KillMatrix({ players }: KillMatrixProps) {
                           count > 0
                             ? {
                                 backgroundColor: killer.isRadiant
-                                  ? `rgba(69, 178, 107, ${0.12 + intensity * 0.55})`
-                                  : `rgba(239, 68, 68, ${0.12 + intensity * 0.55})`,
+                                  ? `rgba(42, 203, 79, ${0.12 + intensity * 0.55})`
+                                  : `rgba(236, 4, 31, ${0.12 + intensity * 0.55})`,
                               }
                             : undefined
                         }
                       >
                         <span
                           className={count === 0 ? "" : killer.isRadiant ? "text-win" : "text-loss"}
-                          style={intensity > 0.4 ? { color: "#F0F4F8" } : undefined}
+                          style={intensity > 0.4 ? { color: "#E6E6E6" } : undefined}
                         >
                           {count > 0 ? count : "—"}
                         </span>

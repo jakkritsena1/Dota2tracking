@@ -5,13 +5,16 @@
 @tailwind utilities;
 
 :root {
-  --radius: 0.5rem;
-  --bg-primary: #0F1923;
-  --bg-secondary: #1A2534;
-  --bg-card: #1E2D3E;
-  --border: #2A3B50;
-  --text-primary: #F0F4F8;
-  --text-secondary: #8B9DB5;
+  /* STRATZ-style "dense by design" dark theme — near-black surfaces built
+     from layered translucency, tight radius for a tool/terminal feel
+     rather than a soft consumer-app one. */
+  --radius: 0.25rem;
+  --bg-primary: #000000;
+  --bg-secondary: #0A0A0A;
+  --bg-card: #141414;
+  --border: #262626;
+  --text-primary: #E6E6E6;
+  --text-secondary: #999999;
 }
 
 @layer base {

@@ -19,8 +19,8 @@ interface Props {
 const ROLE_COLORS: Record<string, string> = {
   carry: "#4C9BE8",
   mid: "#F59E0B",
-  offlane: "#EF4444",
-  support: "#45B26B",
+  offlane: "#EC041F",
+  support: "#2ACB4F",
   hardsupport: "#A78BFA",
 };
 
@@ -42,18 +42,18 @@ export function RoleMmrLines({ data, roles }: Props) {
       <div className="h-56 mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3B4C" />
-            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#8899AA" }} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
+            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#999999" }} tickLine={false} />
             <YAxis
-              tick={{ fontSize: 10, fill: "#8899AA" }}
+              tick={{ fontSize: 10, fill: "#999999" }}
               tickLine={false}
               axisLine={false}
               width={36}
               tickFormatter={(v: number) => rankTierToName(v)}
             />
             <Tooltip
-              contentStyle={{ background: "#1A2A3A", border: "1px solid #2A3B4C", borderRadius: 8 }}
-              labelStyle={{ color: "#8899AA", fontSize: 11 }}
+              contentStyle={{ background: "#141414", border: "1px solid #262626", borderRadius: 8 }}
+              labelStyle={{ color: "#999999", fontSize: 11 }}
               formatter={(v: number, name: string) => [rankTierToName(v), name]}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
@@ -62,7 +62,7 @@ export function RoleMmrLines({ data, roles }: Props) {
                 key={role}
                 dataKey={role}
                 name={role}
-                stroke={ROLE_COLORS[role] ?? "#8899AA"}
+                stroke={ROLE_COLORS[role] ?? "#999999"}
                 strokeWidth={2}
                 dot={false}
                 connectNulls

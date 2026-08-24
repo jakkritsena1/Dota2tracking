@@ -50,28 +50,28 @@ export function MmrChart({ data }: MmrChartProps) {
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A3B50" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
             <XAxis
               dataKey="date"
-              tick={{ fill: "#8B9DB5", fontSize: 11 }}
+              tick={{ fill: "#999999", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
               domain={[minVal, maxVal]}
-              tick={{ fill: "#8B9DB5", fontSize: 11 }}
+              tick={{ fill: "#999999", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => rankTierToName(v)}
             />
             <Tooltip
               contentStyle={{
-                background: "#1E2D3E",
-                border: "1px solid #2A3B50",
+                background: "#141414",
+                border: "1px solid #262626",
                 borderRadius: "6px",
                 fontSize: "12px",
-                color: "#F0F4F8",
+                color: "#E6E6E6",
               }}
               formatter={(_: unknown, __: unknown, props: { payload?: { rankName?: string } }) => [
                 props.payload?.rankName ?? "—",
@@ -84,7 +84,7 @@ export function MmrChart({ data }: MmrChartProps) {
               <ReferenceLine
                 key={date}
                 x={date}
-                stroke="#45B26B"
+                stroke="#2ACB4F"
                 strokeDasharray="4 2"
                 strokeOpacity={0.6}
               />
@@ -116,7 +116,7 @@ export function MmrChart({ data }: MmrChartProps) {
                     cx={cx}
                     cy={cy}
                     r={3}
-                    fill={payload.isWin ? "#45B26B" : "#EF4444"}
+                    fill={payload.isWin ? "#2ACB4F" : "#EC041F"}
                     stroke="none"
                   />
                 );

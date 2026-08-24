@@ -14,8 +14,8 @@ const ROLE_COLORS: Record<string, string> = {
   carry:       "#4C9BE8",
   mid:         "#8B5CF6",
   offlane:     "#F59E0B",
-  support:     "#45B26B",
-  hardsupport: "#EF4444",
+  support:     "#2ACB4F",
+  hardsupport: "#EC041F",
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -75,17 +75,17 @@ export function RolePieChart({ data }: RolePieChartProps) {
               {chartData.map((entry) => (
                 <Cell
                   key={entry.role}
-                  fill={ROLE_COLORS[entry.role] ?? "#8B9DB5"}
+                  fill={ROLE_COLORS[entry.role] ?? "#999999"}
                 />
               ))}
             </Pie>
             <Tooltip
               contentStyle={{
-                background: "#1E2D3E",
-                border: "1px solid #2A3B50",
+                background: "#141414",
+                border: "1px solid #262626",
                 borderRadius: "6px",
                 fontSize: "12px",
-                color: "#F0F4F8",
+                color: "#E6E6E6",
               }}
               formatter={(value: number, name: string) => [`${value} เกม`, name]}
             />
@@ -93,7 +93,7 @@ export function RolePieChart({ data }: RolePieChartProps) {
               iconType="circle"
               iconSize={8}
               formatter={(value) => (
-                <span style={{ color: "#8B9DB5", fontSize: "12px" }}>{value}</span>
+                <span style={{ color: "#999999", fontSize: "12px" }}>{value}</span>
               )}
             />
           </PieChart>

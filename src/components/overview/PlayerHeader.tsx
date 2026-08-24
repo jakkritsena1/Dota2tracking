@@ -29,7 +29,7 @@ export function PlayerHeader({
   lastSyncedAt,
 }: PlayerHeaderProps) {
   const bracket = seasonRank ? Math.floor(seasonRank / 10) : null;
-  const rankColor = bracket ? (RANK_COLORS[bracket] ?? "#8B9DB5") : "#8B9DB5";
+  const rankColor = bracket ? (RANK_COLORS[bracket] ?? "#999999") : "#999999";
   const rankName = rankTierToName(seasonRank);
 
   return (
