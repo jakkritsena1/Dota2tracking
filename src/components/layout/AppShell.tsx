@@ -61,6 +61,7 @@ function AccountMenu({ profile }: { profile: Profile | null }) {
           width={24}
           height={24}
           className="rounded-full shrink-0"
+          unoptimized
         />
       ) : (
         <User size={20} className="text-text-secondary shrink-0" aria-hidden />

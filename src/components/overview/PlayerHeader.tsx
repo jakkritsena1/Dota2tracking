@@ -44,6 +44,7 @@ export function PlayerHeader({
             className="object-cover"
             sizes="64px"
             priority
+            unoptimized
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-text-muted text-2xl">

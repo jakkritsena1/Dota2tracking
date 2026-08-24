@@ -15,9 +15,9 @@ const TILT_THRESHOLD = 3; // ≥3 losses in a row → tilt warning
 
 function intensity(games: number, winRate: number): string {
   if (games === 0) return "bg-border/20";
-  if (winRate >= 0.6) return "bg-win/70";
-  if (winRate >= 0.5) return "bg-win/40";
-  if (winRate >= 0.4) return "bg-loss/40";
+  if (winRate >= 60) return "bg-win/70";
+  if (winRate >= 50) return "bg-win/40";
+  if (winRate >= 40) return "bg-loss/40";
   return "bg-loss/70";
 }
 
@@ -40,7 +40,7 @@ export function PlayCalendar({ dailySummaries }: Props) {
       const key = format(days[i], "yyyy-MM-dd");
       const s = byDate[key];
       if (!s) break;
-      if (s.win_rate < 0.4 && s.games >= 3) consecutive++;
+      if (s.win_rate < 40 && s.games >= 3) consecutive++;
       else break;
     }
     return consecutive >= TILT_THRESHOLD;
@@ -74,7 +74,7 @@ export function PlayCalendar({ dailySummaries }: Props) {
             <div
               key={key}
               className={`aspect-square rounded-sm ${intensity(games, wr)} relative group cursor-default`}
-              title={games > 0 ? `${label}: ${games} เกม, WR ${(wr * 100).toFixed(0)}%` : label}
+              title={games > 0 ? `${label}: ${games} เกม, WR ${wr.toFixed(0)}%` : label}
             >
               {games > 0 && (
                 <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-text-primary/80 opacity-0 group-hover:opacity-100 transition-opacity">

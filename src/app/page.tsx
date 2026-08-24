@@ -123,7 +123,6 @@ export default async function OverviewPage({ searchParams }: PageProps) {
 
   const summary = (summaryData as SummaryRow[] | null)?.[0] ?? null;
   const mmrSeries = (mmrData as MmrSeriesRow[] | null) ?? [];
-  const latestRankTier = mmrSeries.length > 0 ? mmrSeries[mmrSeries.length - 1].rank_tier : null;
   const form10 = (formMatches ?? []).slice().reverse();
   const weaknesses = (weaknessData as Weakness[] | null) ?? [];
   const heroPool = (heroPoolData as HeroPoolWithMetaRow[] | null) ?? [];
@@ -132,7 +131,7 @@ export default async function OverviewPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-8 animate-fade-in">
       <Suspense fallback={<div className="skeleton h-16 w-64" />}>
-        <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} latestRankTier={latestRankTier} />
+        <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} />
       </Suspense>
 
       <RangeSelector currentRange={range} currentRole={role} />
@@ -181,10 +180,8 @@ export default async function OverviewPage({ searchParams }: PageProps) {
 
 async function OverviewHeader({
   lastSyncedAt,
-  latestRankTier,
 }: {
   lastSyncedAt: string | null;
-  latestRankTier: number | null;
 }) {
   const userDb = getServerSupabaseForUser();
   const { data: { user } } = await userDb.auth.getUser();
@@ -192,7 +189,7 @@ async function OverviewHeader({
   const { data: profile } = user
     ? await userDb
         .from("profiles")
-        .select("persona_name, avatar_url")
+        .select("persona_name, avatar_url, season_rank")
         .eq("user_id", user.id)
         .single()
     : { data: null };
@@ -201,7 +198,7 @@ async function OverviewHeader({
     <PlayerHeader
       name={profile?.persona_name ?? "Player"}
       avatar={profile?.avatar_url ?? null}
-      seasonRank={latestRankTier}
+      seasonRank={profile?.season_rank ?? null}
       isDotaPlus={false}
       lastSyncedAt={lastSyncedAt}
     />

@@ -28,7 +28,7 @@ async function fetchStratzProfile(steamAccountId: number) {
     body: JSON.stringify({
       query: `query PlayerProfile($steamAccountId: Long!) {
         player(steamAccountId: $steamAccountId) {
-          steamAccount { name avatar }
+          steamAccount { name avatar seasonRank seasonLeaderboardRank }
         }
       }`,
       variables: { steamAccountId },
@@ -43,8 +43,14 @@ async function fetchStratzProfile(steamAccountId: number) {
   const account = json?.data?.player?.steamAccount;
   if (!account) {
     console.error("[auth/steam/callback] STRATZ profile fetch returned no steamAccount:", JSON.stringify(json));
+    return null;
   }
-  return account ? { name: account.name as string, avatar: account.avatar as string } : null;
+  return {
+    name: account.name as string,
+    avatar: account.avatar as string,
+    seasonRank: (account.seasonRank as number | null) ?? null,
+    seasonLeaderboardRank: (account.seasonLeaderboardRank as number | null) ?? null,
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -111,6 +117,8 @@ export async function GET(request: NextRequest) {
         steam_account_id: steamAccountId,
         persona_name: profileInfo?.name ?? null,
         avatar_url: profileInfo?.avatar ?? null,
+        season_rank: profileInfo?.seasonRank ?? null,
+        season_leaderboard_rank: profileInfo?.seasonLeaderboardRank ?? null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" },

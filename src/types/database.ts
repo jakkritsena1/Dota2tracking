@@ -98,8 +98,8 @@ export interface JobRun {
 export interface SummaryRow {
   total_games: number;
   wins: number;
-  win_rate: number | null;
-  prev_win_rate: number | null;
+  win_rate: number | null; // 0-100, already scaled — do not multiply by 100 again
+  prev_win_rate: number | null; // 0-100, already scaled
   avg_imp: number | null;
   prev_avg_imp: number | null;
   avg_kda: number | null;
@@ -130,7 +130,7 @@ export interface HeroPerformance {
   role: string;
   games: number;
   wins: number;
-  win_rate: number;
+  win_rate: number; // 0-100, already scaled — do not multiply by 100 again
   avg_imp: number;
   avg_gpm: number;
   avg_kills: number;
@@ -143,7 +143,7 @@ export interface DailySummary {
   play_date: string;
   games: number;
   wins: number;
-  win_rate: number;
+  win_rate: number; // 0-100, already scaled — do not multiply by 100 again
   avg_imp: number;
   avg_gpm: number;
 }
