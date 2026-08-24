@@ -14,6 +14,7 @@ const MATCH_DETAIL_QUERY = `
       durationSeconds
       radiantKills
       direKills
+      radiantNetworthLeads
       pickBans {
         isPick
         heroId
@@ -103,6 +104,7 @@ export interface LiveMatchDetail {
   durationSeconds: number;
   radiantKills: number[];
   direKills: number[];
+  radiantNetworthLeads: number[]; // per-minute, positive = Radiant ahead
   pickBans: LivePickBan[];
   players: LiveMatchPlayer[];
 }
@@ -151,6 +153,7 @@ export async function getLiveMatchDetail(matchId: number): Promise<LiveMatchDeta
       durationSeconds: m.durationSeconds,
       radiantKills: m.radiantKills ?? [],
       direKills: m.direKills ?? [],
+      radiantNetworthLeads: m.radiantNetworthLeads ?? [],
       pickBans: (m.pickBans ?? []).map((pb: RawMatch) => ({
         isPick: pb.isPick,
         heroId: pb.heroId ?? null,

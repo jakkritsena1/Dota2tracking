@@ -11,6 +11,7 @@ import MatchScoreline from "@/components/match/MatchScoreline";
 import DraftBans from "@/components/match/DraftBans";
 import TeamScoreboard from "@/components/match/TeamScoreboard";
 import KillMatrix from "@/components/match/KillMatrix";
+import TeamNetWorthChart from "@/components/match/TeamNetWorthChart";
 import type { Match } from "@/types/database";
 
 export async function generateMetadata({
@@ -166,6 +167,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
           didRadiantWin={liveDetail.didRadiantWin}
           trackedSteamAccountId={profile?.steam_account_id ?? undefined}
         />
+      )}
+
+      {/* ── Team net worth graph ─────────────────────────────── */}
+      {liveDetail && liveDetail.radiantNetworthLeads.length > 1 && (
+        <TeamNetWorthChart radiantNetworthLeads={liveDetail.radiantNetworthLeads} />
       )}
 
       {/* ── MD-4: Stats vs benchmark ──────────────────────────── */}
