@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { HeroPoolWithMetaRow } from "@/types/database";
-import { heroIconUrl } from "@/lib/hero-data";
+import { heroIconUrl, getHeroName } from "@/lib/hero-data";
 import { cosineSimilarity } from "@/lib/statistics";
 import { styleVector, playerStyleVector } from "@/lib/hero-properties";
 
@@ -68,13 +68,13 @@ export function NextGameAdvice({ heroPool, role }: Props) {
             <li key={`${h.hero_id}-${h.role}`} className="flex items-center gap-3">
               <Image
                 src={heroIconUrl(h.hero_id)}
-                alt={`hero ${h.hero_id}`}
+                alt={getHeroName(h.hero_id)}
                 width={40}
                 height={40}
                 className="rounded shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary">Hero #{h.hero_id}</p>
+                <p className="text-sm font-medium text-text-primary">{getHeroName(h.hero_id)}</p>
                 <p className="text-xs text-text-secondary">
                   WR {(h.player_wr * 100).toFixed(0)}% · {h.games} เกม
                   {h.meta_wr != null && ` · Meta ${(h.meta_wr * 100).toFixed(0)}%`}

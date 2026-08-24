@@ -13,7 +13,7 @@ import { WeeklyFocus } from "@/components/overview/WeeklyFocus";
 import { NextGameAdvice } from "@/components/overview/NextGameAdvice";
 import { PlayCalendar } from "@/components/overview/PlayCalendar";
 import { RangeSelector } from "@/components/shared/RangeSelector";
-import { InsufficientData } from "@/components/shared/EmptyState";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { KpiCardSkeleton } from "@/components/shared/SkeletonCard";
 import type { SummaryRow, MmrSeriesRow, Weakness, HeroPoolWithMetaRow, DailySummary } from "@/types/database";
 
@@ -123,6 +123,7 @@ export default async function OverviewPage({ searchParams }: PageProps) {
 
   const summary = (summaryData as SummaryRow[] | null)?.[0] ?? null;
   const mmrSeries = (mmrData as MmrSeriesRow[] | null) ?? [];
+  const latestRankTier = mmrSeries.length > 0 ? mmrSeries[mmrSeries.length - 1].rank_tier : null;
   const form10 = (formMatches ?? []).slice().reverse();
   const weaknesses = (weaknessData as Weakness[] | null) ?? [];
   const heroPool = (heroPoolData as HeroPoolWithMetaRow[] | null) ?? [];
@@ -131,7 +132,7 @@ export default async function OverviewPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-8 animate-fade-in">
       <Suspense fallback={<div className="skeleton h-16 w-64" />}>
-        <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} />
+        <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} latestRankTier={latestRankTier} />
       </Suspense>
 
       <RangeSelector currentRange={range} currentRole={role} />
@@ -155,7 +156,10 @@ export default async function OverviewPage({ searchParams }: PageProps) {
           {mmrSeries.length > 0 ? (
             <MmrChart data={mmrSeries} />
           ) : (
-            <InsufficientData games={0} minimum={5} />
+            <EmptyState
+              title="ยังไม่มีข้อมูล MMR"
+              description="STRATZ ไม่ส่ง rank ย้อนหลังรายแมตช์มาให้ — เห็นได้แค่ rank ปัจจุบันเท่านั้น กราฟนี้จะเริ่มมีข้อมูลเมื่อระบบเก็บ rank ของแมตช์ใหม่ ๆ ได้"
+            />
           )}
         </div>
         <div className="card">
@@ -175,35 +179,30 @@ export default async function OverviewPage({ searchParams }: PageProps) {
   );
 }
 
-async function OverviewHeader({ lastSyncedAt }: { lastSyncedAt: string | null }) {
+async function OverviewHeader({
+  lastSyncedAt,
+  latestRankTier,
+}: {
+  lastSyncedAt: string | null;
+  latestRankTier: number | null;
+}) {
   const userDb = getServerSupabaseForUser();
   const { data: { user } } = await userDb.auth.getUser();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = getServerSupabase() as any;
-
-  const { data: cached } = user
-    ? await db
-        .from("api_cache")
-        .select("payload, expires_at")
-        .eq("cache_key", `player_profile:${user.id}`)
-        .gt("expires_at", new Date().toISOString())
+  const { data: profile } = user
+    ? await userDb
+        .from("profiles")
+        .select("persona_name, avatar_url")
+        .eq("user_id", user.id)
         .single()
     : { data: null };
 
-  const profile = cached?.payload as {
-    name?: string;
-    avatar?: string;
-    seasonRank?: number | null;
-    isDotaPlusSubscriber?: boolean;
-  } | null;
-
   return (
     <PlayerHeader
-      name={profile?.name ?? "Loading…"}
-      avatar={profile?.avatar ?? null}
-      seasonRank={profile?.seasonRank ?? null}
-      isDotaPlus={profile?.isDotaPlusSubscriber ?? false}
+      name={profile?.persona_name ?? "Player"}
+      avatar={profile?.avatar_url ?? null}
+      seasonRank={latestRankTier}
+      isDotaPlus={false}
       lastSyncedAt={lastSyncedAt}
     />
   );
