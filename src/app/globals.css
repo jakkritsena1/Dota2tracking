@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.5rem;
+  --bg-primary: #0F1923;
+  --bg-secondary: #1A2534;
+  --bg-card: #1E2D3E;
+  --border: #2A3B50;
+  --text-primary: #F0F4F8;
+  --text-secondary: #8B9DB5;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scrollbar styling — subtle, dark-themed */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border-strong;
+  }
+}
+
+@layer components {
+  /* Card variants */
+  .card {
+    @apply bg-bg-card border border-border rounded-lg p-4;
+  }
+
+  .card-hover {
+    @apply card transition-colors hover:border-border-strong hover:bg-bg-hover cursor-pointer;
+  }
+
+  /* Win / Loss badges */
+  .badge-win {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-accent-green-dim text-win;
+  }
+
+  .badge-loss {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-accent-red-dim text-loss;
+  }
+
+  /* KPI delta */
+  .delta-positive { @apply text-win text-sm font-medium; }
+  .delta-negative { @apply text-loss text-sm font-medium; }
+  .delta-neutral  { @apply text-text-secondary text-sm; }
+
+  /* Skeleton loader */
+  .skeleton {
+    @apply animate-pulse-subtle bg-bg-secondary rounded;
+  }
+
+  /* Section heading */
+  .section-title {
+    @apply text-text-secondary text-xs font-semibold uppercase tracking-wider mb-3;
+  }
+}
+
+@layer utilities {
+  /* Accessible focus ring */
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary;
+  }
+
+  /* Overflow scroll with hidden scrollbar (use for horizontal tables on mobile) */
+  .scroll-x {
+    @apply overflow-x-auto;
+    scrollbar-width: none;
+  }
+  .scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Table caption only for screen readers */
+  .sr-table-caption {
+    @apply sr-only;
+  }
+}

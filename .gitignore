@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+
+# Env files — NEVER commit real keys
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# MCP server config — holds real API tokens
+.mcp.json
+
+# Supabase local state (not secrets)
+supabase/.branches
+supabase/.temp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.DS_Store
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# Testing
+playwright-report/
+test-results/
+
+# Generated
+src/types/database.generated.ts
+*.tsbuildinfo
+
+.vercel
