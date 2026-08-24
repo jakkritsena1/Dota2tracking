@@ -7,49 +7,46 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
+import { stratzGraphQL } from "@/lib/stratz-client";
 
 const STEAM_OPENID_URL = "https://steamcommunity.com/openid/login";
 const STEAM_ID64_BASE = BigInt("76561197960265728");
 
+interface PlayerProfileResult {
+  player: {
+    steamAccount: {
+      name: string;
+      avatar: string;
+      seasonRank: number | null;
+      seasonLeaderboardRank: number | null;
+    } | null;
+  } | null;
+}
+
 async function fetchStratzProfile(steamAccountId: number) {
-  const apiKey = process.env.STRATZ_API_KEY;
-  if (!apiKey) {
-    console.error("[auth/steam/callback] STRATZ_API_KEY is not set — skipping profile fetch");
-    return null;
-  }
+  // Uses Node's https module under the hood, not fetch() — STRATZ's
+  // Cloudflare bot management blocks undici's fetch() with a 403 challenge
+  // regardless of headers, which silently broke every login's profile fetch
+  // (persona_name/avatar_url/season_rank all ended up null). See stratz-client.ts.
+  const data = await stratzGraphQL<PlayerProfileResult>(
+    `query PlayerProfile($steamAccountId: Long!) {
+      player(steamAccountId: $steamAccountId) {
+        steamAccount { name avatar seasonRank seasonLeaderboardRank }
+      }
+    }`,
+    { steamAccountId },
+  );
 
-  const res = await fetch("https://api.stratz.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "User-Agent": "dota2-personal-dashboard/1.0 (private)",
-    },
-    body: JSON.stringify({
-      query: `query PlayerProfile($steamAccountId: Long!) {
-        player(steamAccountId: $steamAccountId) {
-          steamAccount { name avatar seasonRank seasonLeaderboardRank }
-        }
-      }`,
-      variables: { steamAccountId },
-    }),
-  });
-  if (!res.ok) {
-    console.error(`[auth/steam/callback] STRATZ profile fetch failed: HTTP ${res.status}`);
-    return null;
-  }
-
-  const json = await res.json();
-  const account = json?.data?.player?.steamAccount;
+  const account = data?.player?.steamAccount;
   if (!account) {
-    console.error("[auth/steam/callback] STRATZ profile fetch returned no steamAccount:", JSON.stringify(json));
+    console.error("[auth/steam/callback] STRATZ profile fetch returned no steamAccount");
     return null;
   }
   return {
-    name: account.name as string,
-    avatar: account.avatar as string,
-    seasonRank: (account.seasonRank as number | null) ?? null,
-    seasonLeaderboardRank: (account.seasonLeaderboardRank as number | null) ?? null,
+    name: account.name,
+    avatar: account.avatar,
+    seasonRank: account.seasonRank ?? null,
+    seasonLeaderboardRank: account.seasonLeaderboardRank ?? null,
   };
 }
 

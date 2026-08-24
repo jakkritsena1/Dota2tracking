@@ -1,9 +1,23 @@
+"use client";
+
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+
 interface TeamNetWorthChartProps {
   radiantNetworthLeads: number[]; // per-minute, positive = Radiant ahead
+  radiantExperienceLeads: number[]; // per-minute, positive = Radiant ahead
 }
 
-export default function TeamNetWorthChart({ radiantNetworthLeads }: TeamNetWorthChartProps) {
-  const data = radiantNetworthLeads;
+type Metric = "networth" | "xp";
+
+export default function TeamNetWorthChart({
+  radiantNetworthLeads,
+  radiantExperienceLeads,
+}: TeamNetWorthChartProps) {
+  const [metric, setMetric] = useState<Metric>("networth");
+  const hasXp = radiantExperienceLeads.length > 1;
+
+  const data = metric === "xp" && hasXp ? radiantExperienceLeads : radiantNetworthLeads;
   if (data.length < 2) return null;
 
   const max = Math.max(1, ...data.map((v) => Math.abs(v)));
@@ -24,18 +38,51 @@ export default function TeamNetWorthChart({ radiantNetworthLeads }: TeamNetWorth
   const finalLead = data[data.length - 1];
   const leadingTeam = finalLead >= 0 ? "Radiant" : "Dire";
   const leadingColor = finalLead >= 0 ? "text-win" : "text-loss";
+  const unit = metric === "xp" ? "XP" : "";
 
   return (
     <section aria-labelledby="team-networth-heading">
-      <div className="flex items-center justify-between mb-3">
-        <h2 id="team-networth-heading" className="section-title mb-0">Net Worth ทั้งสองทีม</h2>
-        <span className={`text-xs font-medium ${leadingColor}`}>
-          {leadingTeam} นำ {(Math.abs(finalLead) / 1000).toFixed(1)}k
-        </span>
+      <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+        <h2 id="team-networth-heading" className="section-title mb-0">
+          {metric === "xp" ? "Experience ทั้งสองทีม" : "Net Worth ทั้งสองทีม"}
+        </h2>
+        <div className="flex items-center gap-3">
+          {hasXp && (
+            <div className="flex items-center rounded-md border border-border overflow-hidden text-xs">
+              <button
+                type="button"
+                onClick={() => setMetric("networth")}
+                className={cn(
+                  "px-2.5 py-1 transition-colors",
+                  metric === "networth"
+                    ? "bg-accent-blue text-white"
+                    : "text-text-secondary hover:bg-bg-hover",
+                )}
+              >
+                Net Worth
+              </button>
+              <button
+                type="button"
+                onClick={() => setMetric("xp")}
+                className={cn(
+                  "px-2.5 py-1 transition-colors",
+                  metric === "xp"
+                    ? "bg-accent-blue text-white"
+                    : "text-text-secondary hover:bg-bg-hover",
+                )}
+              >
+                XP
+              </button>
+            </div>
+          )}
+          <span className={cn("text-xs font-medium whitespace-nowrap", leadingColor)}>
+            {leadingTeam} นำ {(Math.abs(finalLead) / 1000).toFixed(1)}k {unit}
+          </span>
+        </div>
       </div>
       <div className="card overflow-hidden">
         <div className="scroll-x">
-          <svg width={width} height={height + 20} aria-label="กราฟ net worth เทียบสองทีม" role="img">
+          <svg width={width} height={height + 20} aria-label="กราฟเทียบสองทีม" role="img">
             <line x1={0} y1={midY} x2={width} y2={midY} stroke="#262626" strokeWidth={1} />
 
             <path d={positiveArea} fill="#2ACB4F" fillOpacity={0.18} />

@@ -12,6 +12,8 @@ import DraftBans from "@/components/match/DraftBans";
 import TeamScoreboard from "@/components/match/TeamScoreboard";
 import KillMatrix from "@/components/match/KillMatrix";
 import TeamNetWorthChart from "@/components/match/TeamNetWorthChart";
+import LaneMatchup from "@/components/match/LaneMatchup";
+import SkillBuildTimeline from "@/components/match/SkillBuildTimeline";
 import type { Match } from "@/types/database";
 
 export async function generateMetadata({
@@ -160,6 +162,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
       {/* ── Draft (picks / bans) ────────────────────────────── */}
       {liveDetail && <DraftBans pickBans={liveDetail.pickBans} />}
 
+      {/* ── Lane matchup ─────────────────────────────────────── */}
+      {liveDetail && (
+        <LaneMatchup players={liveDetail.players} laneOutcomes={liveDetail.laneOutcomes} />
+      )}
+
       {/* ── Full 10-player scoreboard ───────────────────────── */}
       {liveDetail && (
         <TeamScoreboard
@@ -169,9 +176,15 @@ export default async function MatchDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* ── Team net worth graph ─────────────────────────────── */}
+      {/* ── Skill build order ────────────────────────────────── */}
+      {liveDetail && <SkillBuildTimeline players={liveDetail.players} />}
+
+      {/* ── Team net worth / XP graph ────────────────────────── */}
       {liveDetail && liveDetail.radiantNetworthLeads.length > 1 && (
-        <TeamNetWorthChart radiantNetworthLeads={liveDetail.radiantNetworthLeads} />
+        <TeamNetWorthChart
+          radiantNetworthLeads={liveDetail.radiantNetworthLeads}
+          radiantExperienceLeads={liveDetail.radiantExperienceLeads}
+        />
       )}
 
       {/* ── MD-4: Stats vs benchmark ──────────────────────────── */}
