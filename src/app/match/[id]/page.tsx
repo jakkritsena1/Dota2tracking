@@ -6,6 +6,11 @@ import { ArrowLeft, Trophy, Skull, Clock, Swords } from "lucide-react";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
 import { formatMatchDate, formatDuration, formatKDA, rankTierToName, cn } from "@/lib/utils";
 import { getHeroName, heroIconUrl } from "@/lib/hero-data";
+import { getLiveMatchDetail } from "@/lib/stratz-match";
+import MatchScoreline from "@/components/match/MatchScoreline";
+import DraftBans from "@/components/match/DraftBans";
+import TeamScoreboard from "@/components/match/TeamScoreboard";
+import KillMatrix from "@/components/match/KillMatrix";
 import type { Match } from "@/types/database";
 
 export async function generateMetadata({
@@ -61,6 +66,16 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   // Net worth timeline from raw payload
   const nwpm = (m.raw as { networthPerMinute?: number[] } | null)?.networthPerMinute ?? [];
+
+  // Current user's steam account id, to highlight "you" in the full scoreboard
+  const { data: profile } = await db
+    .from("profiles")
+    .select("steam_account_id")
+    .single();
+
+  // Full 10-player detail (draft, items, kill events) fetched live from STRATZ —
+  // never stored, so this degrades to the simpler view above if it's unavailable.
+  const liveDetail = await getLiveMatchDetail(matchId);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -136,6 +151,23 @@ export default async function MatchDetailPage({ params }: PageProps) {
         </div>
       </header>
 
+      {/* ── Team scoreline ───────────────────────────────────── */}
+      {liveDetail && (
+        <MatchScoreline players={liveDetail.players} didRadiantWin={liveDetail.didRadiantWin} />
+      )}
+
+      {/* ── Draft (picks / bans) ────────────────────────────── */}
+      {liveDetail && <DraftBans pickBans={liveDetail.pickBans} />}
+
+      {/* ── Full 10-player scoreboard ───────────────────────── */}
+      {liveDetail && (
+        <TeamScoreboard
+          players={liveDetail.players}
+          didRadiantWin={liveDetail.didRadiantWin}
+          trackedSteamAccountId={profile?.steam_account_id ?? undefined}
+        />
+      )}
+
       {/* ── MD-4: Stats vs benchmark ──────────────────────────── */}
       <section aria-labelledby="stats-heading">
         <h2 id="stats-heading" className="section-title">สถิติเกมนี้</h2>
@@ -184,6 +216,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
           <NetworthTimeline data={nwpm} />
         </section>
       )}
+
+      {/* ── Kill breakdown grid ──────────────────────────────── */}
+      {liveDetail && <KillMatrix players={liveDetail.players} />}
 
       {/* ── Tag reasons (debug / evidence) ─────────────────── */}
       {(tags ?? []).length > 0 && (
