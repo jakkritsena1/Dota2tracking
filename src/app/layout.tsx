@@ -3,7 +3,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import AppShell, { type Profile } from "@/components/layout/AppShell";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: {
