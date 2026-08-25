@@ -84,48 +84,17 @@ export default async function MatchOverviewPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* ── Team scoreline ───────────────────────────────────── */}
+      {/* Section order below mirrors STRATZ's real Overview tab (Matchup →
+          Net Worth/XP graph → Lane results → Draft → Builds → Kill
+          Breakdown — confirmed by browsing stratz.com/matches/{id} directly
+          on 2026-08-25), with our own value-add sections appended after
+          rather than interleaved, so the STRATZ-equivalent content stays in
+          the order a STRATZ user already expects. */}
+
+      {/* ── Team scoreline ("Matchup") ────────────────────────── */}
       {liveDetail && (
         <MatchScoreline players={liveDetail.players} didRadiantWin={liveDetail.didRadiantWin} />
       )}
-
-      {/* ── Win probability over time ────────────────────────── */}
-      {liveDetail && liveDetail.radiantWinRates.length > 1 && (
-        <WinProbabilityChart
-          radiantWinRates={liveDetail.radiantWinRates}
-          perspectiveIsRadiant={iWasRadiant}
-          durationSeconds={liveDetail.durationSeconds}
-          outcomeKind={liveDetail.outcomeKind}
-        />
-      )}
-
-      {/* ── Objectives ───────────────────────────────────────── */}
-      {liveDetail && (
-        <ObjectiveTimeline
-          towerDeaths={liveDetail.towerDeaths}
-          firstBloodTime={liveDetail.firstBloodTime}
-          durationSeconds={liveDetail.durationSeconds}
-        />
-      )}
-
-      {/* ── Draft + lane matchup ─────────────────────────────── */}
-      {liveDetail && (
-        <div className="grid gap-6 xl:grid-cols-2">
-          <DraftBans pickBans={liveDetail.pickBans} />
-          <LaneMatchup players={liveDetail.players} laneOutcomes={liveDetail.laneOutcomes} />
-        </div>
-      )}
-
-      {/* ── Item purchase order ──────────────────────────────── */}
-      {liveDetail && (
-        <ItemBuildTimeline
-          players={liveDetail.players}
-          trackedSteamAccountId={profile?.steam_account_id ?? undefined}
-        />
-      )}
-
-      {/* ── Skill build order ────────────────────────────────── */}
-      {liveDetail && <SkillBuildTimeline players={liveDetail.players} />}
 
       {/* ── Team net worth / XP graph ────────────────────────── */}
       {liveDetail && liveDetail.radiantNetworthLeads.length > 1 && (
@@ -135,7 +104,48 @@ export default async function MatchOverviewPage({ params }: PageProps) {
         />
       )}
 
-      {/* ── Vision ───────────────────────────────────────────── */}
+      {/* ── Win probability over time (our own addition, kept next to the
+          other "game state over time" chart) ────────────────── */}
+      {liveDetail && liveDetail.radiantWinRates.length > 1 && (
+        <WinProbabilityChart
+          radiantWinRates={liveDetail.radiantWinRates}
+          perspectiveIsRadiant={iWasRadiant}
+          durationSeconds={liveDetail.durationSeconds}
+          outcomeKind={liveDetail.outcomeKind}
+        />
+      )}
+
+      {/* ── Lane results ──────────────────────────────────────── */}
+      {liveDetail && (
+        <LaneMatchup players={liveDetail.players} laneOutcomes={liveDetail.laneOutcomes} />
+      )}
+
+      {/* ── Draft ─────────────────────────────────────────────── */}
+      {liveDetail && <DraftBans pickBans={liveDetail.pickBans} />}
+
+      {/* ── Builds (items + skills) ───────────────────────────── */}
+      {liveDetail && (
+        <ItemBuildTimeline
+          players={liveDetail.players}
+          trackedSteamAccountId={profile?.steam_account_id ?? undefined}
+        />
+      )}
+      {liveDetail && <SkillBuildTimeline players={liveDetail.players} />}
+
+      {/* ── Objectives (our own addition) ─────────────────────── */}
+      {liveDetail && (
+        <ObjectiveTimeline
+          towerDeaths={liveDetail.towerDeaths}
+          firstBloodTime={liveDetail.firstBloodTime}
+          durationSeconds={liveDetail.durationSeconds}
+        />
+      )}
+
+      {/* ── Kill breakdown ────────────────────────────────────── */}
+      {liveDetail && <KillMatrix players={liveDetail.players} />}
+
+      {/* ── Vision (our own addition — STRATZ puts this on its separate
+          Maps tab, which we don't build; kept here instead) ──── */}
       {liveDetail && <WardMap players={liveDetail.players} />}
 
       {/* ── Personal stats vs benchmark ──────────────────────── */}
@@ -180,9 +190,6 @@ export default async function MatchOverviewPage({ params }: PageProps) {
           </div>
         </Card>
       )}
-
-      {/* ── Kill breakdown grid ──────────────────────────────── */}
-      {liveDetail && <KillMatrix players={liveDetail.players} />}
 
       {/* ── Tag reasons (debug / evidence) ─────────────────── */}
       {(tags ?? []).length > 0 && (

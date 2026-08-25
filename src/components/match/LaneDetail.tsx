@@ -19,12 +19,23 @@ const LANES: { key: "top" | "mid" | "bottom"; label: string }[] = [
   { key: "bottom", label: "เลนล่าง" },
 ];
 
-// STRATZ's *PerMinute arrays are cumulative snapshots indexed from minute 1
-// (index 0 = end of minute 1), confirmed by cross-checking networthPerMinute
-// against the match-level radiantNetworthLeads array we already trust.
-function snapshotAt(arr: number[], minute: number): number | null {
+// STRATZ's *PerMinute arrays are NOT all the same shape — verified by
+// fetching a real match directly and cross-checking against final totals:
+// networthPerMinute is a cumulative "current net worth" snapshot per minute
+// (summing it would overcount), while lastHitsPerMinute / deniesPerMinute /
+// experiencePerMinute are per-minute deltas whose sum across the whole array
+// equals the match's final total (confirmed: sum(lastHitsPerMinute) ==
+// numLastHits within rounding). So "at minute N" means different arithmetic
+// per field — a single index for the cumulative one, a running sum for the
+// delta ones. Index 0 = minute 1, matching STRATZ's own indexing.
+function cumulativeAt(arr: number[], minute: number): number | null {
   const v = arr[minute - 1];
   return v == null ? null : v;
+}
+
+function sumThrough(arr: number[], minute: number): number | null {
+  if (arr.length === 0) return null;
+  return arr.slice(0, minute).reduce((sum, v) => sum + (v ?? 0), 0);
 }
 
 function outcomeMeta(outcome: LiveLaneOutcome | null): { text: string; colorClass: string } {
@@ -134,20 +145,25 @@ function LaneSideTable({ players, side }: { players: LiveMatchPlayer[]; side: "r
                 {side === "radiant" ? "Radiant" : "Dire"}
               </th>
               <th scope="col" className="text-right">K/D/A</th>
-              <th scope="col" className="text-right">NW @5</th>
-              <th scope="col" className="text-right">NW @10</th>
-              <th scope="col" className="text-right">LH/DN @5</th>
-              <th scope="col" className="text-right">LH/DN @10</th>
+              <th scope="col" className="text-right">NW นาที 5</th>
+              <th scope="col" className="text-right">NW นาที 10</th>
+              <th scope="col" className="text-right">LH/DN นาที 5</th>
+              <th scope="col" className="text-right">LH/DN นาที 10</th>
             </tr>
           </thead>
           <tbody>
             {players.map((p) => {
-              const nw5 = snapshotAt(p.networthPerMinute, 5);
-              const nw10 = snapshotAt(p.networthPerMinute, 10);
-              const lh5 = snapshotAt(p.lastHitsPerMinute, 5);
-              const lh10 = snapshotAt(p.lastHitsPerMinute, 10);
-              const dn5 = snapshotAt(p.deniesPerMinute, 5);
-              const dn10 = snapshotAt(p.deniesPerMinute, 10);
+              // networthPerMinute is a cumulative running snapshot (read the
+              // index directly); lastHitsPerMinute/deniesPerMinute are
+              // per-minute deltas (sum through the target minute) — see the
+              // note on cumulativeAt/sumThrough above, verified against a
+              // real match's final totals.
+              const nw5 = cumulativeAt(p.networthPerMinute, 5);
+              const nw10 = cumulativeAt(p.networthPerMinute, 10);
+              const lh5 = sumThrough(p.lastHitsPerMinute, 5);
+              const lh10 = sumThrough(p.lastHitsPerMinute, 10);
+              const dn5 = sumThrough(p.deniesPerMinute, 5);
+              const dn10 = sumThrough(p.deniesPerMinute, 10);
 
               return (
                 <tr key={p.steamAccountId}>
