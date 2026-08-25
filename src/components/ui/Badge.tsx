@@ -1,4 +1,5 @@
-import { cn, rankTierToName, rankTierColor } from "@/lib/utils";
+import Image from "next/image";
+import { cn, rankTierToName, rankTierColor, rankTierIconUrl } from "@/lib/utils";
 
 type Tone = "neutral" | "win" | "loss" | "teal" | "gold" | "purple" | "orange";
 
@@ -69,6 +70,7 @@ export function RankBadge({
 
   const color = rankTierColor(rankTier);
   const name = rankTierToName(rankTier);
+  const iconPx = size === "md" ? 20 : 16;
 
   return (
     <span
@@ -78,14 +80,14 @@ export function RankBadge({
       )}
       style={{ color }}
     >
-      <span
-        className="inline-block rounded-full shrink-0"
-        style={{
-          background: color,
-          width: size === "md" ? 8 : 6,
-          height: size === "md" ? 8 : 6,
-          boxShadow: `0 0 6px ${color}`,
-        }}
+      <Image
+        src={rankTierIconUrl(rankTier)}
+        alt=""
+        width={iconPx}
+        height={iconPx}
+        className="shrink-0"
+        unoptimized
+        priority
         aria-hidden
       />
       {name}
