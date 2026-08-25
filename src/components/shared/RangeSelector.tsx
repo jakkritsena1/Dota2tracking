@@ -25,12 +25,18 @@ interface RangeSelectorProps {
   currentRange: RangeParam;
   currentRole?: RoleParam;
   showRole?: boolean;
+  /** Hide the date-range buttons for pages whose data isn't windowed by
+   * calendar date (e.g. hero pool is an all-time aggregate, Progress is
+   * windowed by game/week count) — showing them there would look like a
+   * working filter that silently does nothing when clicked. */
+  showRange?: boolean;
 }
 
 export function RangeSelector({
   currentRange,
   currentRole = "all",
   showRole = true,
+  showRange = true,
 }: RangeSelectorProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -44,12 +50,14 @@ export function RangeSelector({
 
   return (
     <div className="flex flex-wrap gap-2 items-center">
-      <SegmentedControl
-        ariaLabel="ช่วงเวลา"
-        value={currentRange}
-        onChange={(v) => setParam("range", v)}
-        segments={RANGES}
-      />
+      {showRange && (
+        <SegmentedControl
+          ariaLabel="ช่วงเวลา"
+          value={currentRange}
+          onChange={(v) => setParam("range", v)}
+          segments={RANGES}
+        />
+      )}
 
       {/* Six roles is past the point where a segmented control reads well —
           a select keeps the header from wrapping onto a second line. */}

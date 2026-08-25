@@ -58,7 +58,7 @@ export default async function HeroesPage({ searchParams }: PageProps) {
         eyebrow="ฮีโร่"
         title="Hero Pool"
         description="ฝีมือของคุณกับแต่ละฮีโร่ เทียบกับเมต้าปัจจุบัน"
-        actions={<RangeSelector currentRange="all" currentRole={role} />}
+        actions={<RangeSelector currentRange="all" currentRole={role} showRange={false} />}
       />
 
       <div className="grid md:grid-cols-2 gap-6">

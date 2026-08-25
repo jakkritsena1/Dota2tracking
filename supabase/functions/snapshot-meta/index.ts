@@ -13,10 +13,15 @@ import {
 } from "../_shared/stratz.ts";
 import { verifyServiceRole } from "../_shared/auth.ts";
 
-const BRACKETS = [
-  "HERALD", "GUARDIAN", "CRUSADER", "ARCHON",
-  "LEGEND", "ANCIENT", "DIVINE", "IMMORTAL",
-];
+// Every frontend query hardcodes rank_bracket "legend" (Overview, Heroes,
+// Coach, hero detail — grep confirms none of the other 7 brackets are ever
+// read anywhere in src/). Fetching all 8 brackets x 5 positions = 40 STRATZ
+// calls per run was pure waste 7/8 of the time, and — worse — was the
+// actual cause of this function being killed by the platform's execution
+// timeout on every single run (confirmed: HTTP 546 at ~49s wall-clock, both
+// before and after adding inter-call pacing below, which only made total
+// wall-clock time longer). Scoped to just the bracket the app uses.
+const BRACKETS = ["LEGEND"];
 const POSITIONS = [
   "POSITION_1", "POSITION_2", "POSITION_3", "POSITION_4", "POSITION_5",
 ];
@@ -52,12 +57,33 @@ Deno.serve(async (req: Request) => {
     // ── 1. Hero meta per bracket+position ──────────────────────
     const heroMetaRows: Array<Record<string, unknown>> = [];
 
+    // 1 bracket x 5 positions = 5 STRATZ calls (was 40 before scoping
+    // BRACKETS down to just "legend" — see comment above). A small pacing
+    // delay is still kept between calls out of courtesy to STRATZ's
+    // per-second rate limit, which is shared across every edge function on
+    // this one API key (see the same note in sync-matches).
     for (const bracket of BRACKETS) {
       for (const position of POSITIONS) {
         const role = ROLE_FROM_POSITION[position];
         try {
           const rows = await getHeroMeta(apiKey, [bracket], [position]);
+
+          // winDay returns one row per hero *per day* (an ~8-day trailing
+          // series, confirmed via a live query), not one row per hero. All
+          // rows were being stamped with today's date regardless of which
+          // day they actually cover, so a single upsert batch ended up with
+          // several rows sharing the same (captured_on, hero_id,
+          // rank_bracket, role) key — Postgres rejects that outright
+          // ("ON CONFLICT DO UPDATE command cannot affect row a second
+          // time"), which silently discarded this whole day's snapshot.
+          // Keep only the most recent day's row per hero.
+          const latestByHero = new Map<number, (typeof rows)[number]>();
           for (const row of rows) {
+            const existing = latestByHero.get(row.heroId);
+            if (!existing || row.day > existing.day) latestByHero.set(row.heroId, row);
+          }
+
+          for (const row of latestByHero.values()) {
             if (!row.matchCount) continue;
             heroMetaRows.push({
               captured_on: today,
@@ -73,6 +99,7 @@ Deno.serve(async (req: Request) => {
           // Continue if one bracket/role combination fails
           console.warn(`Failed to fetch meta for ${bracket}/${position}`);
         }
+        await sleep(250);
       }
     }
 
@@ -134,6 +161,10 @@ Deno.serve(async (req: Request) => {
     });
   }
 });
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 // ── Personal benchmark percentile calculation ─────────────────
 

@@ -39,10 +39,19 @@ Deno.serve(async (req: Request) => {
   const jobId = jobRow?.id;
 
   try {
-    // Refresh materialized views first (independent of sample size, per-user)
-    await supabase.rpc("refresh_materialized_views").catch(() => {
+    // Refresh materialized views first (independent of sample size, per-user).
+    // supabase-js's .rpc() builder is thenable but has no .catch() method —
+    // calling .catch() on it throws "TypeError: ... .catch is not a
+    // function" synchronously, which was being thrown *before* the RPC even
+    // ran and crashing this whole function on every invocation (caught by
+    // the outer try/catch below, which then skipped the entire per-user
+    // weakness computation loop — this is why the weaknesses table had zero
+    // rows despite every user having far more than MIN_SAMPLES matches).
+    try {
+      await supabase.rpc("refresh_materialized_views");
+    } catch {
       // Views can also be refreshed via raw SQL — fallback silently
-    });
+    }
 
     const { data: profiles, error: profilesErr } = await supabase
       .from("profiles")
@@ -146,10 +155,16 @@ async function computeWeaknessesForUser(
     const currentValue = mean(myValues);
     const benchP75 = benchmarks.get(metric)?.p75 ?? currentValue;
 
-    // For "deaths", lower is better — invert the gap calculation
+    // For "deaths", lower is better — invert the gap calculation.
+    // Parens around the ?? are required: "??" binds looser than "-", so
+    // `a - b?.c ?? d` parses as `(a - b?.c) ?? d`, not `a - (b?.c ?? d)`.
+    // Unparenthesized, a missing p50 benchmark produced `currentValue -
+    // undefined` = NaN, and NaN ?? d is still NaN (?? only replaces
+    // null/undefined) — silently poisoning gap, and therefore
+    // est_delta_winrate, for every user missing a "deaths" benchmark row.
     const isLowerBetter = metric === "deaths";
     const gap = isLowerBetter
-      ? currentValue - benchmarks.get(metric)?.p50 ?? currentValue  // positive = bad
+      ? currentValue - (benchmarks.get(metric)?.p50 ?? currentValue)  // positive = bad
       : benchP75 - currentValue;  // positive = room to improve
 
     if (gap <= 0) continue; // already above benchmark, not a weakness

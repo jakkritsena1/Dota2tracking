@@ -229,13 +229,15 @@ export async function getMatchDetail(
   return data.match ?? null;
 }
 
+// STRATZ returns `day` as a Unix timestamp (number), not a string — one row
+// per hero *per day* (an ~8-day trailing series), not one row per hero.
 export async function getHeroMeta(
   apiKey: string,
   bracketIds: string[],
   positionIds: string[],
-): Promise<Array<{ heroId: number; winCount: number; matchCount: number; day: string }>> {
+): Promise<Array<{ heroId: number; winCount: number; matchCount: number; day: number }>> {
   const data = await query<{
-    heroStats: { winDay: Array<{ heroId: number; winCount: number; matchCount: number; day: string }> };
+    heroStats: { winDay: Array<{ heroId: number; winCount: number; matchCount: number; day: number }> };
   }>(HERO_META_QUERY, { bracketIds, positionIds }, apiKey);
   return data.heroStats?.winDay ?? [];
 }

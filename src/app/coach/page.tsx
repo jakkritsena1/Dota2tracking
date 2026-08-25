@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
-import { parseRole } from "@/lib/utils";
+import { parseRange, parseRole, rangeToStartDate } from "@/lib/utils";
 import { RangeSelector } from "@/components/shared/RangeSelector";
 import { RadarAxes } from "@/components/coach/RadarAxes";
 import { WeaknessCards } from "@/components/coach/WeaknessCards";
@@ -23,10 +23,11 @@ interface PageProps {
 export default async function CoachPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const role = parseRole(params.role ?? null);
+  const range = parseRange(params.range ?? null);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getServerSupabaseForUser() as any;
-  const rangeStart = new Date(Date.now() - 30 * 86400_000).toISOString();
+  const rangeStart = rangeToStartDate(range).toISOString();
 
   const [
     { data: radarData },
@@ -89,7 +90,7 @@ export default async function CoachPage({ searchParams }: PageProps) {
         eyebrow="โค้ช"
         title="Self Coach"
         description="จุดอ่อนที่แก้ได้จริง เรียงตามผลกระทบต่ออัตราชนะ"
-        actions={<RangeSelector currentRange="30d" currentRole={role} />}
+        actions={<RangeSelector currentRange={range} currentRole={role} />}
       />
 
       <div className="grid md:grid-cols-2 gap-6">

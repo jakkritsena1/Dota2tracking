@@ -102,7 +102,7 @@ export default async function ProgressPage({ searchParams }: PageProps) {
         eyebrow="ความก้าวหน้า"
         title="Progress"
         description="เส้นทาง MMR สตรีค และสถิติที่ทำได้ดีที่สุด"
-        actions={<RangeSelector currentRange="30d" currentRole={role} />}
+        actions={<RangeSelector currentRange="30d" currentRole={role} showRange={false} />}
       />
 
       {/* PR-1: MMR forecast */}
