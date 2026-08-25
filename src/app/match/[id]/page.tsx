@@ -265,11 +265,17 @@ function NetworthTimeline({ data }: { data: number[] }) {
   const height = 80;
   const width = Math.max(data.length * 4, 200);
 
-  const points = data.map((v, i) => {
+  const midY = height / 2;
+  const coords = data.map((v, i) => {
     const x = (i / (data.length - 1)) * width;
-    const y = height / 2 - (v / max) * (height / 2 - 4);
-    return `${x},${y}`;
+    const y = midY - (v / max) * (midY - 4);
+    return { x, y };
   });
+  const points = coords.map(({ x, y }) => `${x},${y}`);
+  const areaPath =
+    `M ${coords[0].x},${midY} ` +
+    coords.map(({ x, y }) => `L ${x},${y}`).join(" ") +
+    ` L ${coords[coords.length - 1].x},${midY} Z`;
 
   // Find throw moment: was leading by >3000 at min 20, then went negative
   const throwMin = (() => {
@@ -281,6 +287,9 @@ function NetworthTimeline({ data }: { data: number[] }) {
     return null;
   })();
 
+  const lineColor = throwMin ? "#F59E0B" : "#2ACB4F";
+  const gradientId = throwMin ? "personal-nw-throw" : "personal-nw-normal";
+
   return (
     <div className="scroll-x">
       <svg
@@ -289,12 +298,21 @@ function NetworthTimeline({ data }: { data: number[] }) {
         aria-label="กราฟ net worth ตลอดเกม"
         role="img"
       >
-        <line x1={0} y1={height / 2} x2={width} y2={height / 2} stroke="#262626" strokeWidth={1} />
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={lineColor} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={lineColor} stopOpacity="0.05" />
+          </linearGradient>
+        </defs>
+
+        <line x1={0} y1={midY} x2={width} y2={midY} stroke="#262626" strokeWidth={1} />
+
+        <path d={areaPath} fill={`url(#${gradientId})`} />
 
         <polyline
           points={points.join(" ")}
           fill="none"
-          stroke={throwMin ? "#F59E0B" : "#2ACB4F"}
+          stroke={lineColor}
           strokeWidth={2}
         />
 

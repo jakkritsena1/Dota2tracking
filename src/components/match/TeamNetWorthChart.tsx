@@ -72,12 +72,44 @@ export default function TeamNetWorthChart({
       <div className="p-4">
         <div className="scroll-x">
           <svg width={width} height={height + 20} aria-label="กราฟเทียบสองทีม" role="img">
+            <defs>
+              <linearGradient id="nw-win-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#2ACB4F" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#2ACB4F" stopOpacity="0.06" />
+              </linearGradient>
+              <linearGradient id="nw-loss-fill" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor="#EC041F" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#EC041F" stopOpacity="0.06" />
+              </linearGradient>
+              <clipPath id="nw-clip-up">
+                <rect x={0} y={0} width={width} height={midY} />
+              </clipPath>
+              <clipPath id="nw-clip-down">
+                <rect x={0} y={midY} width={width} height={height - midY} />
+              </clipPath>
+            </defs>
+
             <line x1={0} y1={midY} x2={width} y2={midY} stroke="#262626" strokeWidth={1} />
 
-            <path d={positiveArea} fill="#2ACB4F" fillOpacity={0.18} />
-            <path d={negativeArea} fill="#EC041F" fillOpacity={0.18} />
+            <path d={positiveArea} fill="url(#nw-win-fill)" />
+            <path d={negativeArea} fill="url(#nw-loss-fill)" />
 
-            <polyline points={linePoints} fill="none" stroke="#999999" strokeWidth={1.5} />
+            <polyline
+              points={linePoints}
+              fill="none"
+              stroke="#2ACB4F"
+              strokeWidth={2}
+              clipPath="url(#nw-clip-up)"
+              vectorEffect="non-scaling-stroke"
+            />
+            <polyline
+              points={linePoints}
+              fill="none"
+              stroke="#EC041F"
+              strokeWidth={2}
+              clipPath="url(#nw-clip-down)"
+              vectorEffect="non-scaling-stroke"
+            />
 
             {[10, 20, 30, 40, 50].filter((m) => m < data.length).map((min) => (
               <text key={min} x={scaleX(min)} y={height + 14} fill="#5C5C5C" fontSize={10} textAnchor="middle">
