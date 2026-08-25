@@ -108,11 +108,11 @@ export default async function ProgressPage({ searchParams }: PageProps) {
       {/* PR-1: MMR forecast */}
       <MmrForecast series={series} forecast={forecast} />
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      {/* 796fr/380fr and the 1232px trigger are stratz.com's own measured
+          main/rail split and breakpoint — see the note in globals.css. */}
+      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
         {/* PR-2: Per-role MMR lines — a multi-line chart, needs the room */}
-        <div className="xl:col-span-2">
-          <RoleMmrLines data={roleMmrData as never} roles={activeRoles} />
-        </div>
+        <RoleMmrLines data={roleMmrData as never} roles={activeRoles} />
 
         {/* PR-3: Streak/tilt stats — two probability bars, fits the rail */}
         <StreakStatsCard stats={streak} />

@@ -19,14 +19,15 @@
   --text-primary: #E6E6E6;
   --text-secondary: #999999;
 
-  /* Sidebar width, shared between the shell and any sticky offsets.
-     Full labelled sidebar at xl+ (1280px) only — from md up to xl it's a
-     w-16 (4rem) icon-only rail (see AppShell.tsx), so a 1024–1279px window
-     isn't stuck losing a fixed 240px to labels it has no room to show
-     comfortably. Page content itself caps at max-w-[75rem] (1200px, see
-     AppShell's <main>) — sampled from STRATZ/OP.GG/Leetify, which all sit
-     in the 1080–1300px range rather than stretching full-bleed. */
-  --sidebar-w: 15rem;
+  /* Nav/content dimensions — measured directly from stratz.com on
+     2026-08-25, not estimated. They have no sidebar at all, just a 56px
+     top bar (AppShell's <header>, h-14) that collapses to a hamburger
+     below ~1200px (binary-searched: 1200px still hidden, 1205px visible —
+     see NAV_BP in AppShell.tsx). Page content caps at max-w-[75rem]
+     (1200px, AppShell's <main>), and the 2-column main/rail grids used on
+     several pages switch in at ~1232px (STRATZ's own content-column
+     breakpoint, also binary-searched) with a 796:380 ratio, not an even
+     split — both sampled from STRATZ's real computed layout, not guessed. */
 }
 
 @layer base {

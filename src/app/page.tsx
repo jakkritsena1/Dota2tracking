@@ -174,11 +174,11 @@ export default async function OverviewPage({ searchParams }: PageProps) {
 
       {/* Trend row — MMR gets the wider column; it's the one chart people
           come back for, and a pie needs far less room to be readable.
-          Waits for xl (1280px): below that the sidebar is already an icon
-          rail and a laptop window has no room left to split 2:1 without
-          squeezing the chart. */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
+          796fr/380fr and the 1232px trigger are stratz.com's own measured
+          main/rail split and breakpoint (binary-searched live, not
+          guessed) — see the note in globals.css. */}
+      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
+        <Card>
           {mmrSeries.length > 0 ? (
             <MmrChart data={mmrSeries} />
           ) : (
@@ -196,10 +196,8 @@ export default async function OverviewPage({ searchParams }: PageProps) {
       {/* Habits row — the session curve needs width to read; the calendar
           heatmap doesn't, so it takes the narrower column instead of an
           even split. */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <SessionTracker rows={sessions} />
-        </div>
+      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
+        <SessionTracker rows={sessions} />
         <PlayCalendar dailySummaries={dailySummaries} />
       </div>
 

@@ -61,11 +61,11 @@ export default async function HeroesPage({ searchParams }: PageProps) {
         actions={<RangeSelector currentRange="all" currentRole={role} showRange={false} />}
       />
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      {/* 796fr/380fr and the 1232px trigger are stratz.com's own measured
+          main/rail split and breakpoint — see the note in globals.css. */}
+      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
         {/* HE-1: 4-quadrant scatter — a real chart, needs the room */}
-        <div className="xl:col-span-2">
-          <PoolScatter data={pool} />
-        </div>
+        <PoolScatter data={pool} />
 
         {/* HE-2: Recommendations — a short ranked list, fits the rail */}
         <HeroRecommendations pool={pool} />

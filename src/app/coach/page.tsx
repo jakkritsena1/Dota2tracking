@@ -93,11 +93,11 @@ export default async function CoachPage({ searchParams }: PageProps) {
         actions={<RangeSelector currentRange={range} currentRole={role} />}
       />
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      {/* 796fr/380fr and the 1232px trigger are stratz.com's own measured
+          main/rail split and breakpoint — see the note in globals.css. */}
+      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
         {/* CO-1: Radar — needs the room, so it takes the wide column */}
-        <div className="xl:col-span-2">
-          <RadarAxes scores={radarScores} />
-        </div>
+        <RadarAxes scores={radarScores} />
 
         {/* CO-2: Weaknesses — a short ranked list, fits the rail */}
         <WeaknessCards weaknesses={weaknesses} />
