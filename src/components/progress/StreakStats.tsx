@@ -5,6 +5,14 @@ interface Props {
 }
 
 function ProbBar({ pct, label, color }: { pct: number; label: string; color: string }) {
+  // color is the *text* class ("text-loss" / "text-win" / neutral) chosen by
+  // the caller for the % readout — the bar fill must match it explicitly.
+  // Falling through anything that isn't exactly "text-loss" to the win/green
+  // fill (the previous logic) meant a neutral baseline stat rendered as a
+  // bright green "good" bar even though the number it's showing is a loss
+  // probability, which reads as backwards on a panel titled "ความเสี่ยง Tilt".
+  const fillClass =
+    color === "text-loss" ? "bg-loss" : color === "text-win" ? "bg-win" : "bg-accent-teal";
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
@@ -13,7 +21,7 @@ function ProbBar({ pct, label, color }: { pct: number; label: string; color: str
       </div>
       <div className="h-2 bg-border/40 rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all ${color === "text-loss" ? "bg-loss" : "bg-win"}`}
+          className={`h-full rounded-full transition-all ${fillClass}`}
           style={{ width: `${Math.min(pct * 100, 100)}%` }}
         />
       </div>
@@ -40,7 +48,7 @@ export function StreakStatsCard({ stats }: Props) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="section-title">ความเสี่ยง Tilt</h2>
         {isTilted && (
-          <span className="badge badge-loss text-xs">⚠️ Tilt Risk</span>
+          <span className="badge-loss">⚠️ Tilt Risk</span>
         )}
       </div>
 
