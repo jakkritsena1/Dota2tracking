@@ -64,7 +64,7 @@ export default async function ProgressPage({ searchParams }: PageProps) {
 
   const series = (mmrData as MmrSeriesRow[] | null) ?? [];
   const forecast = (forecastData as MmrForecastRow[] | null)?.[0] ?? null;
-  const streak = streakData as StreakStats | null;
+  const streak = (streakData as StreakStats[] | null)?.[0] ?? null;
   const impMmr = (impMmrData as WeeklyImpVsMmrRow[] | null) ?? [];
   const bests = (bestsData as PersonalBestRow[] | null) ?? [];
 
