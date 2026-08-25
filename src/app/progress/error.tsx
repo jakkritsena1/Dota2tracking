@@ -19,7 +19,7 @@ export default function ProgressError({
     <div className="card space-y-3">
       <ErrorState message="โหลดข้อมูลความก้าวหน้าไม่สำเร็จ" onRetry={reset} />
       <div className="text-center">
-        <Link href="/" className="text-xs text-accent-blue hover:underline">
+        <Link href="/" className="text-xs text-accent-teal hover:underline">
           กลับหน้าแรก
         </Link>
       </div>

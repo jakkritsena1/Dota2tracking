@@ -16,6 +16,10 @@ const MATCH_DETAIL_QUERY = `
       direKills
       radiantNetworthLeads
       radiantExperienceLeads
+      winRates
+      firstBloodTime
+      analysisOutcome
+      towerDeaths { time npcId isRadiant attacker }
       topLaneOutcome
       midLaneOutcome
       bottomLaneOutcome
@@ -58,6 +62,8 @@ const MATCH_DETAIL_QUERY = `
         neutral0Id
         stats {
           killEvents { time target }
+          itemPurchases { time itemId }
+          wards { time type positionX positionY }
         }
         abilities {
           abilityId
@@ -91,6 +97,29 @@ export interface LiveKillEvent {
   time: number;
   target: number; // victim hero id
 }
+
+export interface LiveItemPurchase {
+  time: number; // seconds from horn; negative = bought during pre-game
+  itemId: number;
+}
+
+// STRATZ reports ward placements in map units (roughly 64-192 on each axis,
+// 128 = centre). `type` 0 = observer, 1 = sentry.
+export interface LiveWardEvent {
+  time: number;
+  type: 0 | 1;
+  x: number;
+  y: number;
+}
+
+export interface LiveTowerDeath {
+  time: number;
+  npcId: number;
+  isRadiant: boolean; // whose tower fell
+  attacker: number | null; // hero id that landed the killing blow, if any
+}
+
+export type MatchOutcomeKind = "NONE" | "STOMPED" | "COMEBACK" | "CLOSE_GAME";
 
 // Team-relative lane assignment, as reported by STRATZ (not map-relative —
 // see mapLaneToSide() for converting to top/mid/bottom).
@@ -138,6 +167,8 @@ export interface LiveMatchPlayer {
   neutralItem: number | null;
   killEvents: LiveKillEvent[];
   skillBuild: LiveSkillEvent[];
+  itemPurchases: LiveItemPurchase[];
+  wards: LiveWardEvent[];
 }
 
 export interface LiveMatchDetail {
@@ -148,6 +179,13 @@ export interface LiveMatchDetail {
   direKills: number[];
   radiantNetworthLeads: number[]; // per-minute, positive = Radiant ahead
   radiantExperienceLeads: number[]; // per-minute, positive = Radiant ahead
+  // Per-minute probability that Radiant wins, 0-1, as computed by STRATZ's
+  // model from the live game state. This is the retrospective curve, not the
+  // pre-game prediction (`predictedWinRates`, deliberately not fetched).
+  radiantWinRates: number[];
+  firstBloodTime: number | null;
+  outcomeKind: MatchOutcomeKind;
+  towerDeaths: LiveTowerDeath[];
   laneOutcomes: {
     top: LiveLaneOutcome | null;
     mid: LiveLaneOutcome | null;
@@ -198,6 +236,15 @@ export async function getLiveMatchDetail(matchId: number): Promise<LiveMatchDeta
     direKills: m.direKills ?? [],
     radiantNetworthLeads: m.radiantNetworthLeads ?? [],
     radiantExperienceLeads: m.radiantExperienceLeads ?? [],
+    radiantWinRates: (m.winRates ?? []).map(Number),
+    firstBloodTime: m.firstBloodTime ?? null,
+    outcomeKind: (m.analysisOutcome ?? "NONE") as MatchOutcomeKind,
+    towerDeaths: (m.towerDeaths ?? []).map((t: RawMatch) => ({
+      time: t.time,
+      npcId: t.npcId,
+      isRadiant: t.isRadiant,
+      attacker: t.attacker ?? null,
+    })),
     laneOutcomes: {
       top: m.topLaneOutcome ?? null,
       mid: m.midLaneOutcome ?? null,
@@ -241,6 +288,16 @@ export async function getLiveMatchDetail(matchId: number): Promise<LiveMatchDeta
         target: k.target,
       })),
       skillBuild: mapSkillBuild(p),
+      itemPurchases: (p.stats?.itemPurchases ?? []).map((i: RawMatch) => ({
+        time: i.time,
+        itemId: i.itemId,
+      })),
+      wards: (p.stats?.wards ?? []).map((w: RawMatch) => ({
+        time: w.time,
+        type: w.type === 1 ? 1 : 0,
+        x: w.positionX,
+        y: w.positionY,
+      })),
     })),
   };
 

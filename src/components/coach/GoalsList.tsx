@@ -58,7 +58,7 @@ function GoalRow({ goal, onUpdate }: { goal: GoalProgressRow; onUpdate: () => vo
       </div>
       <div className="h-2 bg-border/40 rounded-full overflow-hidden mb-1.5">
         <div
-          className={`h-full rounded-full transition-all ${passed ? "bg-win" : "bg-accent-blue"}`}
+          className={`h-full rounded-full transition-all ${passed ? "bg-win" : "bg-accent-teal"}`}
           style={{ width: `${pct * 100}%` }}
         />
       </div>
@@ -125,7 +125,7 @@ function AddGoalForm({ onSuccess }: { onSuccess: () => void }) {
     <form onSubmit={handleSubmit} className="p-3 rounded-lg border border-border/60 space-y-3">
       <p className="text-xs font-medium text-text-secondary">ตั้งเป้าหมายใหม่</p>
       <input
-        className="w-full bg-bg-hover border border-border rounded-md px-3 py-1.5 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-1 focus:ring-accent-blue"
+        className="w-full bg-bg-hover border border-border rounded-md px-3 py-1.5 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-1 focus:ring-accent-teal"
         placeholder="เช่น ตายไม่เกิน 3 ใน 7 เกม"
         value={title}
         onChange={e => setTitle(e.target.value)}
@@ -161,7 +161,7 @@ function AddGoalForm({ onSuccess }: { onSuccess: () => void }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-1.5 rounded-md bg-accent-blue text-sm font-medium text-white hover:bg-accent-blue/80 disabled:opacity-50 transition-colors"
+        className="w-full py-1.5 rounded-md bg-accent-teal text-sm font-medium text-white hover:bg-accent-teal/80 disabled:opacity-50 transition-colors"
       >
         {loading ? "กำลังบันทึก…" : "บันทึกเป้าหมาย"}
       </button>
@@ -184,7 +184,7 @@ export function GoalsList({ goals }: Props) {
         <h2 className="section-title">เป้าหมาย</h2>
         <button
           onClick={() => setShowForm(v => !v)}
-          className="text-xs text-accent-blue hover:underline"
+          className="text-xs text-accent-teal hover:underline"
         >
           {showForm ? "ยกเลิก" : "+ ตั้งเป้าหมาย"}
         </button>

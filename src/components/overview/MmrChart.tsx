@@ -151,7 +151,7 @@ export function MmrChart({ data }: MmrChartProps) {
 
       <Link
         href="/progress"
-        className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+        className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent-teal hover:underline"
       >
         ดูพัฒนาการเพิ่มเติม →
       </Link>

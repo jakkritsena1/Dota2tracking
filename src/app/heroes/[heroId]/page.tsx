@@ -117,7 +117,7 @@ export default async function HeroDetailPage({ params }: PageProps) {
           { label: "Win Rate", value: `${(wr * 100).toFixed(1)}%`, color: wr >= 0.5 ? "text-win" : "text-loss" },
           { label: "KDA เฉลี่ย", value: formatKDA(avgKills, avgDeaths, avgAssists), color: "text-text-primary" },
           { label: "GPM เฉลี่ย", value: Math.round(avgGpm).toString(), color: "text-text-primary" },
-          { label: "IMP เฉลี่ย", value: avgImp.toFixed(1), color: "text-accent-blue" },
+          { label: "IMP เฉลี่ย", value: avgImp.toFixed(1), color: "text-accent-teal" },
         ].map(s => (
           <div key={s.label} className="card text-center">
             <p className="text-xs text-text-secondary mb-1">{s.label}</p>
@@ -194,7 +194,7 @@ export default async function HeroDetailPage({ params }: PageProps) {
               {matches.slice(0, 20).map(m => (
                 <tr key={m.match_id} className="hover:bg-bg-hover transition-colors">
                   <td className="py-2 pr-4 text-text-secondary whitespace-nowrap">
-                    <Link href={`/match/${m.match_id}`} className="hover:text-accent-blue transition-colors">
+                    <Link href={`/match/${m.match_id}`} className="hover:text-accent-teal transition-colors">
                       {formatMatchDate(m.start_time)}
                     </Link>
                   </td>

@@ -19,7 +19,7 @@ export default function SettingsError({
     <div className="card space-y-3 max-w-2xl">
       <ErrorState message="โหลดหน้า Settings ไม่สำเร็จ" onRetry={reset} />
       <div className="text-center">
-        <Link href="/" className="text-xs text-accent-blue hover:underline">
+        <Link href="/" className="text-xs text-accent-teal hover:underline">
           กลับหน้าแรก
         </Link>
       </div>

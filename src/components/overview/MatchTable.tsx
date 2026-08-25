@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardLinkAction } from "@/components/ui/Card";
+import { HeroCell } from "@/components/ui/HeroAvatar";
+import { ResultBadge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { cn, formatMatchDate, formatDuration, formatKDA } from "@/lib/utils";
-import { getHeroName, heroIconUrl } from "@/lib/hero-data";
 import type { Match, MatchTag } from "@/types/database";
 
 type MatchWithTags = Match & { match_tags?: MatchTag[] };
@@ -13,16 +16,17 @@ interface MatchTableProps {
   matches: MatchWithTags[];
 }
 
-const TAG_LABELS: Record<string, { label: string; color: string }> = {
-  lane_loss:      { label: "Lane แพ้",       color: "bg-accent-red-dim text-loss" },
-  slow_farm:      { label: "Farm ช้า",        color: "bg-accent-orange text-white" },
-  died_in_fights: { label: "ตายในไฟต์",     color: "bg-accent-red-dim text-loss" },
-  throw_midgame:  { label: "Throw",           color: "bg-accent-purple text-white" },
-  carried_by_team:{ label: "ทีมพาขึ้น",      color: "bg-text-muted text-white" },
-  good_game:      { label: "เกมดี",          color: "bg-accent-green-dim text-win" },
+const TAG_LABELS: Record<string, { label: string; className: string }> = {
+  lane_loss:       { label: "Lane แพ้",   className: "bg-accent-red-dim text-loss" },
+  slow_farm:       { label: "Farm ช้า",    className: "bg-accent-orange/15 text-accent-orange" },
+  died_in_fights:  { label: "ตายในไฟต์", className: "bg-accent-red-dim text-loss" },
+  throw_midgame:   { label: "Throw",       className: "bg-accent-purple/20 text-accent-purple" },
+  carried_by_team: { label: "ทีมพาขึ้น",  className: "bg-bg-overlay-strong text-text-secondary" },
+  good_game:       { label: "เกมดี",       className: "bg-accent-green-dim text-win" },
 };
 
 export function MatchTable({ matches }: MatchTableProps) {
+  const router = useRouter();
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
   const filtered = activeTag
@@ -30,128 +34,99 @@ export function MatchTable({ matches }: MatchTableProps) {
     : matches;
 
   return (
-    <section aria-label="แมตช์ล่าสุด">
-      <div className="flex items-center justify-between mb-3">
-        <p className="section-title mb-0">แมตช์ล่าสุด</p>
-        {activeTag ? (
-          <button
-            onClick={() => setActiveTag(null)}
-            className="text-xs text-accent-blue hover:underline focus-ring"
-            aria-label="ล้างการกรอง"
-          >
-            ล้างการกรอง ({TAG_LABELS[activeTag]?.label ?? activeTag})
-          </button>
-        ) : (
-          <Link href="/matches" className="text-xs text-accent-blue hover:underline focus-ring">
-            ดูทั้งหมด →
-          </Link>
-        )}
-      </div>
+    <Card padded={false}>
+      <CardHeader
+        title="แมตช์ล่าสุด"
+        subtitle={
+          activeTag
+            ? `กรองด้วยแท็ก "${TAG_LABELS[activeTag]?.label ?? activeTag}" — ${filtered.length} เกม`
+            : `${matches.length} เกมล่าสุดในช่วงที่เลือก`
+        }
+        action={
+          activeTag ? (
+            <button
+              onClick={() => setActiveTag(null)}
+              className="text-accent-teal hover:text-accent-teal-bright transition-colors focus-ring rounded"
+            >
+              ล้างการกรอง
+            </button>
+          ) : (
+            <CardLinkAction href="/matches">ดูทั้งหมด</CardLinkAction>
+          )
+        }
+      />
 
-      <div className="card p-0 overflow-hidden">
-        {/* Table — scrollable horizontally on small screens */}
+      {filtered.length === 0 ? (
+        <EmptyState
+          title="ไม่มีแมตช์ที่ตรงกับตัวกรอง"
+          description={`ยังไม่มีเกมที่ติดแท็ก "${TAG_LABELS[activeTag ?? ""]?.label ?? activeTag}" ในช่วงเวลานี้`}
+        />
+      ) : (
         <div className="scroll-x">
-          <table className="w-full text-sm">
+          <table className="table-data min-w-[46rem]">
             <caption className="sr-table-caption">
               รายการแมตช์ล่าสุด พร้อมผลลัพธ์และสถิติ
             </caption>
             <thead>
-              <tr className="border-b border-border">
-                {["ฮีโร่", "ผล", "เวลา", "KDA", "IMP", "GPM", "แท็ก"].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-2 text-left text-text-muted text-xs font-medium"
-                    scope="col"
-                  >
-                    {h}
-                  </th>
-                ))}
+              <tr>
+                <th scope="col">ฮีโร่</th>
+                <th scope="col">ผล</th>
+                <th scope="col">เมื่อไหร่</th>
+                <th scope="col" className="text-right">KDA</th>
+                <th scope="col" className="text-right">IMP</th>
+                <th scope="col" className="text-right">GPM</th>
+                <th scope="col">แท็ก</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-text-muted text-sm">
-                    ไม่มีแมตช์ที่มีแท็ก &quot;{TAG_LABELS[activeTag ?? ""]?.label}&quot;
-                  </td>
-                </tr>
-              )}
               {filtered.map((m) => (
                 <tr
                   key={m.match_id}
-                  className="border-b border-border/50 hover:bg-bg-hover transition-colors cursor-pointer"
-                  onClick={() => { window.location.href = `/match/${m.match_id}`; }}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/match/${m.match_id}`)}
                 >
-                  {/* Hero */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="relative h-8 w-8 shrink-0 rounded-sm overflow-hidden bg-bg-secondary">
-                        <Image
-                          src={heroIconUrl(m.hero_id)}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="32px"
-                          unoptimized
-                        />
-                      </div>
-                      <Link
-                        href={`/match/${m.match_id}`}
-                        className="text-text-primary hover:text-accent-blue font-medium focus-ring"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {getHeroName(m.hero_id)}
-                      </Link>
-                    </div>
+                  <td>
+                    <HeroCell
+                      heroId={m.hero_id}
+                      href={`/match/${m.match_id}`}
+                      sub={m.role ?? undefined}
+                    />
                   </td>
 
-                  {/* Result */}
-                  <td className="px-4 py-3">
-                    <span className={m.is_win ? "badge-win" : "badge-loss"}>
-                      <span aria-hidden>{m.is_win ? "▲" : "▼"}</span>
-                      {m.is_win ? "ชนะ" : "แพ้"}
-                    </span>
+                  <td>
+                    <ResultBadge isWin={m.is_win} />
                   </td>
 
-                  {/* Duration */}
-                  <td className="px-4 py-3 text-text-secondary">
-                    <span>{formatMatchDate(m.start_time)}</span>
-                    <span className="block text-text-muted text-xs">
+                  <td className="text-text-secondary whitespace-nowrap">
+                    {formatMatchDate(m.start_time)}
+                    <span className="block text-text-muted text-xs font-mono">
                       {formatDuration(m.duration_sec)}
                     </span>
                   </td>
 
-                  {/* KDA */}
-                  <td className="px-4 py-3 font-mono text-text-primary">
+                  <td className="num text-text-primary">
                     {m.kills ?? 0}/{m.deaths ?? 0}/{m.assists ?? 0}
                     <span className="block text-text-muted text-xs">
                       {formatKDA(m.kills ?? 0, m.deaths ?? 0, m.assists ?? 0)}
                     </span>
                   </td>
 
-                  {/* IMP */}
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        "font-medium",
-                        m.imp !== null && m.imp >= 50
-                          ? "text-win"
-                          : m.imp !== null && m.imp <= 10
-                          ? "text-loss"
-                          : "text-text-primary",
-                      )}
-                    >
-                      {m.imp ?? "—"}
-                    </span>
+                  <td
+                    className={cn(
+                      "num font-semibold",
+                      m.imp !== null && m.imp >= 50
+                        ? "text-win"
+                        : m.imp !== null && m.imp <= 10
+                        ? "text-loss"
+                        : "text-text-primary",
+                    )}
+                  >
+                    {m.imp ?? "—"}
                   </td>
 
-                  {/* GPM */}
-                  <td className="px-4 py-3 text-text-secondary">
-                    {m.gpm ?? "—"}
-                  </td>
+                  <td className="num text-text-secondary">{m.gpm ?? "—"}</td>
 
-                  {/* Tags (max 2) */}
-                  <td className="px-4 py-3">
+                  <td>
                     <div className="flex flex-wrap gap-1">
                       {(m.match_tags ?? []).slice(0, 2).map((tag) => (
                         <button
@@ -161,11 +136,13 @@ export function MatchTable({ matches }: MatchTableProps) {
                             setActiveTag(activeTag === tag.tag ? null : tag.tag);
                           }}
                           className={cn(
-                            "px-1.5 py-0.5 rounded text-xs font-medium transition-opacity hover:opacity-80 focus-ring",
-                            TAG_LABELS[tag.tag]?.color ?? "bg-bg-secondary text-text-secondary",
+                            "px-1.5 py-0.5 rounded text-xs font-medium transition-opacity hover:opacity-75 focus-ring",
+                            TAG_LABELS[tag.tag]?.className ?? "bg-bg-overlay text-text-secondary",
+                            activeTag === tag.tag && "ring-1 ring-accent-teal",
                           )}
                           aria-pressed={activeTag === tag.tag}
                           aria-label={`กรองด้วยแท็ก ${TAG_LABELS[tag.tag]?.label ?? tag.tag}`}
+                          title={`ความมั่นใจ ${Math.round(tag.confidence * 100)}%`}
                         >
                           {TAG_LABELS[tag.tag]?.label ?? tag.tag}
                         </button>
@@ -177,7 +154,17 @@ export function MatchTable({ matches }: MatchTableProps) {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Row click uses the router, but keyboard users need a real link out. */}
+      <div className="px-4 py-2.5" style={{ borderTop: "1px solid var(--hairline)" }}>
+        <Link
+          href="/matches"
+          className="text-xs text-text-muted hover:text-accent-teal transition-colors focus-ring rounded"
+        >
+          ดูประวัติแมตช์ทั้งหมด →
+        </Link>
       </div>
-    </section>
+    </Card>
   );
 }

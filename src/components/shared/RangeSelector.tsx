@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import type { RangeParam, RoleParam } from "@/types/database";
 
 const RANGES: { value: RangeParam; label: string }[] = [
@@ -42,45 +43,37 @@ export function RangeSelector({
   }
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
-      {/* Range tabs */}
-      <div
-        role="tablist"
-        aria-label="ช่วงเวลา"
-        className="flex bg-bg-secondary rounded-md border border-border p-0.5"
-      >
-        {RANGES.map(({ value, label }) => (
-          <button
-            key={value}
-            role="tab"
-            aria-selected={currentRange === value}
-            onClick={() => setParam("range", value)}
-            className={cn(
-              "px-3 py-1 text-xs font-medium rounded transition-colors focus-ring",
-              currentRange === value
-                ? "bg-accent-blue text-white"
-                : "text-text-secondary hover:text-text-primary",
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-2 items-center">
+      <SegmentedControl
+        ariaLabel="ช่วงเวลา"
+        value={currentRange}
+        onChange={(v) => setParam("range", v)}
+        segments={RANGES}
+      />
 
-      {/* Role filter */}
+      {/* Six roles is past the point where a segmented control reads well —
+          a select keeps the header from wrapping onto a second line. */}
       {showRole && (
-        <select
-          value={currentRole}
-          onChange={(e) => setParam("role", e.target.value)}
-          aria-label="กรองตาม role"
-          className="bg-bg-secondary border border-border rounded-md px-3 py-1.5 text-xs text-text-primary focus-ring appearance-none"
-        >
-          {ROLES.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={currentRole}
+            onChange={(e) => setParam("role", e.target.value)}
+            aria-label="กรองตาม role"
+            className="appearance-none bg-bg-secondary ring-hairline rounded-md pl-3 pr-8 py-1.5
+                       text-xs font-medium text-text-primary hover:bg-bg-overlay transition-colors focus-ring"
+          >
+            {ROLES.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={13}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
+            aria-hidden
+          />
+        </div>
       )}
     </div>
   );

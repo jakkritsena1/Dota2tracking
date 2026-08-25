@@ -1,7 +1,10 @@
 import Image from "next/image";
-import { getHeroName, heroIconUrl } from "@/lib/hero-data";
+import { getHeroName } from "@/lib/hero-data";
 import { getItemName, itemIconUrl } from "@/lib/item-data";
-import { cn } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { HeroAvatar } from "@/components/ui/HeroAvatar";
+import { Badge } from "@/components/ui/Badge";
+import { cn, formatCompact } from "@/lib/utils";
 import type { LiveMatchPlayer } from "@/lib/stratz-match";
 
 interface TeamScoreboardProps {
@@ -26,18 +29,14 @@ export default function TeamScoreboard({
           label="Radiant"
           players={radiant}
           isWinner={didRadiantWin}
-          colorClass="text-win"
-          borderClass="border-accent-green-dim"
-          badgeClass="badge-win"
+          accent="radiant"
           trackedSteamAccountId={trackedSteamAccountId}
         />
         <TeamTable
           label="Dire"
           players={dire}
           isWinner={!didRadiantWin}
-          colorClass="text-loss"
-          borderClass="border-accent-red-dim"
-          badgeClass="badge-loss"
+          accent="dire"
           trackedSteamAccountId={trackedSteamAccountId}
         />
       </div>
@@ -49,36 +48,36 @@ function TeamTable({
   label,
   players,
   isWinner,
-  colorClass,
-  borderClass,
-  badgeClass,
+  accent,
   trackedSteamAccountId,
 }: {
   label: string;
   players: LiveMatchPlayer[];
   isWinner: boolean;
-  colorClass: string;
-  borderClass: string;
-  badgeClass: string;
+  accent: "radiant" | "dire";
   trackedSteamAccountId?: number;
 }) {
   return (
-    <div className={cn("card overflow-hidden border-l-2 p-0", borderClass)}>
-      <div className="flex items-center justify-between px-4 py-2.5 bg-bg-secondary/60">
-        <span className={cn("text-sm font-semibold", colorClass)}>{label}</span>
-        {isWinner && <span className={badgeClass}>ชนะ</span>}
-      </div>
+    <Card padded={false} accent={accent}>
+      <CardHeader
+        title={
+          <span className={accent === "radiant" ? "text-radiant" : "text-dire"}>{label}</span>
+        }
+        subtitle={`${players.reduce((n, p) => n + p.kills, 0)} kills · ${formatCompact(
+          players.reduce((n, p) => n + p.networth, 0),
+        )} net worth`}
+        action={isWinner ? <Badge tone={accent === "radiant" ? "win" : "loss"}>ชนะ</Badge> : null}
+      />
       <div className="scroll-x">
-        <table className="w-full text-sm min-w-[680px]">
+        <table className="table-data min-w-[42rem]">
           <thead>
-            <tr className="text-text-muted text-xs border-b border-border">
-              <th className="text-left font-medium px-3 py-2">ฮีโร่</th>
-              <th className="text-left font-medium px-3 py-2">ผู้เล่น</th>
-              <th className="text-right font-medium px-3 py-2">Lvl</th>
-              <th className="text-right font-medium px-3 py-2">K/D/A</th>
-              <th className="text-right font-medium px-3 py-2">GPM/XPM</th>
-              <th className="text-right font-medium px-3 py-2">Net Worth</th>
-              <th className="text-left font-medium px-3 py-2">ไอเทม</th>
+            <tr>
+              <th scope="col">ฮีโร่</th>
+              <th scope="col">ผู้เล่น</th>
+              <th scope="col" className="text-right">K/D/A</th>
+              <th scope="col" className="text-right">GPM/XPM</th>
+              <th scope="col" className="text-right">Net Worth</th>
+              <th scope="col">ไอเทม</th>
             </tr>
           </thead>
           <tbody>
@@ -86,28 +85,18 @@ function TeamTable({
               <tr
                 key={p.steamAccountId}
                 className={cn(
-                  "border-b border-border/50 last:border-b-0 transition-colors hover:bg-bg-hover",
-                  p.steamAccountId === trackedSteamAccountId && "bg-bg-hover/60",
+                  p.steamAccountId === trackedSteamAccountId && "bg-accent-teal-dim/50",
                 )}
               >
-                <td className="px-3 py-2.5">
+                <td>
                   <div className="flex items-center gap-2">
-                    <div className="relative h-8 w-8 shrink-0 rounded-sm overflow-hidden bg-bg-secondary">
-                      <Image
-                        src={heroIconUrl(p.heroId)}
-                        alt={getHeroName(p.heroId)}
-                        fill
-                        className="object-cover"
-                        sizes="32px"
-                        unoptimized
-                      />
-                    </div>
+                    <HeroAvatar heroId={p.heroId} size="md" level={p.level} ring={accent} />
                     <span className="text-text-primary text-xs whitespace-nowrap">
                       {getHeroName(p.heroId)}
                     </span>
                   </div>
                 </td>
-                <td className="px-3 py-2.5 max-w-[150px]">
+                <td className="max-w-[150px]">
                   <div className="flex items-center gap-1.5">
                     {p.avatar && (
                       <div className="relative h-5 w-5 shrink-0 rounded-full overflow-hidden bg-bg-secondary">
@@ -118,23 +107,22 @@ function TeamTable({
                       {p.name ?? "—"}
                     </span>
                     {p.steamAccountId === trackedSteamAccountId && (
-                      <span className="shrink-0 text-[10px] font-semibold text-accent-blue bg-accent-blue/10 px-1 py-0.5 rounded">
+                      <span className="shrink-0 text-[10px] font-semibold text-accent-teal bg-accent-teal/10 px-1 py-0.5 rounded">
                         คุณ
                       </span>
                     )}
                   </div>
                 </td>
-                <td className="px-3 py-2.5 text-right text-text-secondary text-xs">{p.level}</td>
-                <td className="px-3 py-2.5 text-right text-text-primary text-xs font-mono whitespace-nowrap tabular-nums">
+                <td className="num text-text-primary text-xs whitespace-nowrap">
                   {p.kills}/{p.deaths}/{p.assists}
                 </td>
-                <td className="px-3 py-2.5 text-right text-text-secondary text-xs font-mono whitespace-nowrap tabular-nums">
+                <td className="num text-text-secondary text-xs whitespace-nowrap">
                   {p.gpm}/{p.xpm}
                 </td>
-                <td className="px-3 py-2.5 text-right text-text-primary text-xs font-mono tabular-nums">
-                  {(p.networth / 1000).toFixed(1)}k
+                <td className="num text-accent-gold text-xs font-semibold">
+                  {formatCompact(p.networth)}
                 </td>
-                <td className="px-3 py-2.5">
+                <td>
                   <ItemRow player={p} />
                 </td>
               </tr>
@@ -142,7 +130,7 @@ function TeamTable({
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
 

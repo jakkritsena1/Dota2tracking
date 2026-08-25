@@ -33,7 +33,7 @@ export function TriggerSyncButton() {
       <button
         onClick={handleSync}
         disabled={state === "loading"}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-ring w-fit"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent-teal text-white text-sm font-medium hover:bg-accent-teal/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-ring w-fit"
       >
         <RefreshCw
           size={14}

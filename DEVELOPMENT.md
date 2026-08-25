@@ -9,7 +9,7 @@ the actual code/git history for current behavior before relying on a claim here.
 ## Tech stack
 
 - **Frontend**: Next.js 14 (App Router, all Server Components unless noted), React 18, TypeScript
-- **Styling**: Tailwind CSS with a custom dark theme (design tokens in `tailwind.config.ts` + `src/app/globals.css`), Radix UI primitives, `lucide-react` icons
+- **Styling**: Tailwind CSS with a custom dark theme (design tokens in `tailwind.config.ts` + `src/app/globals.css`), Radix UI primitives, `lucide-react` icons. Shared UI primitives live in `src/components/ui/` — see "Design system" below
 - **Charts**: a mix — `recharts` powers the coach/progress/heroes charts (`BenchmarkTimeline`, `RadarAxes`, `PoolScatter`, `MmrChart`, `RolePieChart`, `ImpVsMmrChart`, `MmrForecast`, `RoleMmrLines`); the match-detail charts (`TeamNetWorthChart`, `NetworthTimeline`, `KillMatrix`) are hand-rolled inline SVG instead
 - **Backend**: Supabase — Postgres + Row Level Security, Postgres RPC functions, Deno Edge Functions, `pg_cron` for scheduling
 - **External data**: [STRATZ GraphQL API](https://api.stratz.com/graphql) — match history, match detail, hero/item/ability metadata, player profile
@@ -32,7 +32,7 @@ supabase/functions/  Deno Edge Functions (STRATZ sync, weakness detection, diges
 
 | Route | Purpose |
 |---|---|
-| `/` (Overview) | KPI cards, MMR chart, recent match table, role pie chart, form bar, play calendar heatmap, most-played heroes, weekly focus (top weakness), next-game advice |
+| `/` (Overview) | KPI cards, MMR chart, recent match table, role pie chart, form bar, session tracker + fatigue curve, play calendar heatmap, most-played heroes, weekly focus (top weakness), next-game advice |
 | `/matches` | Full ranked match history list, filterable |
 | `/match/[id]` | Match detail — see below, the most feature-dense page |
 | `/heroes` | Hero pool table (win rate, games, meta win rate), pool scatter plot, patch impact, hero recommendations |
@@ -60,10 +60,63 @@ still renders the personal-stats-only view).
 | `LaneMatchup` | Top/mid/bottom lane hero-vs-hero rows + lane outcome | live (`player.lane`, `match.{top,mid,bottom}LaneOutcome`) |
 | `TeamScoreboard` | Full 10-player table: KDA, level, GPM/XPM, net worth, items | live |
 | `SkillBuildTimeline` | Per-player skill level-up order with talent markers | live (`playbackData.abilityLearnEvents`, resolved to names via the player's `abilities` cast log — STRATZ doesn't join ability names directly onto learn events) |
+| `WinProbabilityChart` | Per-minute win probability, flipped to the tracked player's side | live (`match.winRates`, `analysisOutcome`) |
+| `ObjectiveTimeline` | Tower falls + first blood on one axis, grouped by scoring team | live (`towerDeaths`, `firstBloodTime`) |
+| `ItemBuildTimeline` | Per-player purchase order with timestamps, consumables filterable | live (`stats.itemPurchases`) |
+| `WardMap` | Observer/sentry placements on a hand-drawn map, filterable by team and game phase | live (`stats.wards`) |
 | `KillMatrix` | Who-killed-whom grid | live (`stats.killEvents`) |
 | `TeamNetWorthChart` | Net worth **or** XP lead over time, toggle button | live (`radiantNetworthLeads`, `radiantExperienceLeads`) |
 | (inline) `NetworthTimeline` | The tracked player's own net-worth curve + "throw" detection | own `matches.raw` JSONB |
 | (inline) `StatCard` grid | KDA/IMP/GPM/deaths/etc vs personal benchmark percentile | own `matches` row + `player_benchmarks` |
+
+## Design system
+
+The palette and surface treatment were **sampled from stratz.com's own
+computed styles**, not guessed — if you need to extend them, do the same
+rather than inventing a new shade:
+
+| Role | Value | Notes |
+|---|---|---|
+| Page ground | `#000000` | pure black, `bg-bg-primary` |
+| Card surface | `#141414` | `bg-bg-card` |
+| Stacked surface | `rgba(255,255,255,0.04)` / `0.08` | `bg-bg-overlay` / `-strong` — translucent so it composes over any parent |
+| Hairline | `rgba(255,255,255,0.08)` | drawn as an **inset ring**, not a border |
+| Brand / interactive | `#10A4C1` teal (gradient `#0BAFD0 → #078197`) | `accent-teal`, `bg-brand-gradient` |
+| Volume / count | `#D6AF4C` gold | `accent-gold` |
+| Win / loss | `#2ACB4F` / `#EC041F` | `win` / `loss` |
+| Radiant / Dire | `#4FA855` / `#C23C2A` | team identity, deliberately distinct from win/loss |
+| Radius | 4px everywhere | `--radius` |
+
+Two conventions that are easy to break by accident:
+
+- **Cards have no `border`.** Depth is an inset hairline plus a tight ambient
+  shadow (`shadow-card`), because a real 1px border on every panel turns a
+  page this dense into a grid of lines. Use the `.card` class or `<Card>`, and
+  `.ring-hairline` for anything else that needs an edge.
+- **`accent-blue` (`#4C9BE8`) is now a chart-series colour only** — PoolScatter,
+  RadarAxes, BenchmarkTimeline, ImpVsMmrChart. Every link, active state, and
+  interactive affordance uses `accent-teal`. Don't reintroduce blue for chrome.
+
+Shared primitives in `src/components/ui/` — prefer these over one-off markup:
+
+| Component | Use for |
+|---|---|
+| `Card`, `CardHeader`, `CardBody`, `CardLinkAction` | every panel; `padded={false}` for tables/charts that bleed to the edge |
+| `StatTile`, `DeltaBadge` | any single-number display, with optional delta / sparkline / meter |
+| `Badge`, `ResultBadge`, `RankBadge` | pills; `RankBadge` reads medal colours from `rankTierColor()` |
+| `BenchmarkMeter`, `SplitBar`, `ProgressBar` | bars — `BenchmarkMeter` draws p25/p50/p75 ticks behind the value |
+| `Sparkline` | inline trend lines (hand-rolled SVG, works in server components) |
+| `HeroAvatar`, `HeroCell` | hero portraits and the standard hero table cell |
+| `Tooltip` | CSS-only hover/focus tooltip — no state, safe in server components and in large grids |
+| `SegmentedControl` | small mutually-exclusive option sets (client component) |
+| `PageHeader` | top-of-page block; every route uses it so titles land at the same y-position |
+
+Also available as classes: `.card`, `.card-header`, `.chip`, `.surface`,
+`.label-xs`, `.table-data` (+ `.num` cells), `.ring-hairline`, `.brand-text`,
+`.skeleton` (shimmer), `.stagger` (staggered child fade-in).
+
+Global search is `⌘K` / `Ctrl-K` (`src/components/layout/CommandPalette.tsx`) —
+jumps to a page, a hero, or a match by pasting its ID.
 
 ## Data flow / sync pipeline
 
@@ -118,6 +171,7 @@ field, check its actual source and scale — don't assume from the name alone.**
 | `*_wr` (`player_wr`, `meta_wr`) | 0–1 fraction | **Yes** |
 | `confidence` (on `match_tags`) | 0–1 fraction | **Yes** |
 | `est_delta_winrate` (on `weaknesses`) | percentage points already (e.g. `3.6` = "+3.6% WR"), computed as `gap * corrWeight * 0.4` | **No** — fixed 2026-08-24, was double-scaled in `WeaknessCards.tsx` and `WeeklyFocus.tsx` |
+| `winRates` (STRATZ `match.winRates`, → `radiantWinRates`) | 0–1 fraction, Radiant's chance | **Yes** — and flip to `1 - v` for a Dire-side player |
 | IMP score, KDA ratio | not a percentage at all | never scale |
 | net worth, gold, GPM/XPM | raw gold/minute units | divide by 1000 + `.toFixed(1)}k` for net worth display, GPM/XPM shown raw |
 
@@ -149,6 +203,15 @@ problem — don't assume it needs the same fix without checking first.
 If STRATZ calls start failing again, check the response body for a Cloudflare
 "Just a moment..." challenge page before assuming an auth/rate-limit issue.
 
+**GraphQL introspection is enabled** and is the fastest way to confirm a field
+before wiring it up — POST `{ __type(name:"MatchPlayerStatsType"){ fields { name } } }`
+through `stratzGraphQL()`. Useful types: `MatchType` (has `winRates`,
+`towerDeaths`, `firstBloodTime`, `analysisOutcome`, `laneReport`),
+`MatchPlayerStatsType` (`itemPurchases`, `wards`, `runes`, `deathEvents`,
+`heroDamageReport`, `impPerMinute`). Note `match.predictedWinRates` is the
+*pre-game* prediction on a different scale — not the in-game curve; we
+deliberately fetch only `winRates`.
+
 ## Icon/asset CDN conventions
 
 All Dota 2 art comes from STRATZ's CDN, no local assets:
@@ -170,9 +233,30 @@ fixture data, temporarily add `/dev` to `PUBLIC_PATHS` in `middleware.ts` to
 bypass the auth gate, verify via the browser tools, then **fully delete**
 `src/app/dev/` and revert the `middleware.ts` change before finishing. Always
 open a **fresh browser tab** when checking console errors — a reused tab can
-show stale `ChunkLoadError`/`SyntaxError` messages left over from earlier dev-server
-restarts in the same session; this is a known false-positive, not a real bug.
+show stale `ChunkLoadError`/`SyntaxError`/`ReferenceError` messages left over
+from earlier HMR states or dev-server restarts in the same session; this is a
+known false-positive, not a real bug.
+
+Two more traps worth knowing:
+
+- **Never run `npm run build` while `next dev` is running.** Both write
+  `.next/`, and the build clobbers the dev server's chunk map — every
+  subsequently-compiled route then 500s with
+  `Cannot find module './vendor-chunks/@supabase.js'`. Stop the dev server,
+  `rm -rf .next`, and restart it.
+- Bypassing the auth gate lets every route render, but RLS still scopes on
+  `auth.uid()`, so the pages come back **empty** and `/match/[id]` correctly
+  falls through to `notFound()`. That is a real compile/render smoke test, not
+  a content test — for content, drive the components directly from `/dev`.
 
 ## Known outstanding items (unverified — check before trusting)
 
 - `.env.example` may be missing/stale (was missing as of a 2026-08-24 spot check, not investigated further)
+- The `/matches` page table was refactored onto `.table-data` + `HeroCell` +
+  `ResultBadge`, but could only be verified by type-check/lint and an
+  empty-state render — the account used for verification had no visible rows
+  under RLS. Worth an eyeball on the first real login.
+- `player.stats` exposes several fetched-but-unused signals that would slot
+  into the match page cheaply: `heroDamageReport` (damage dealt/received by
+  target and by ability — a real STRATZ panel), `runes`, `deathEvents`
+  (positions, gold fed, `isBurst`), and `impPerMinute`.

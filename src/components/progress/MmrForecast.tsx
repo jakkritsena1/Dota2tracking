@@ -70,7 +70,7 @@ export function MmrForecast({ series, forecast }: Props) {
         {weeksEst != null && nextRankName && (
           <div className="text-right">
             <p className="text-xs text-text-secondary">คาดถึง</p>
-            <p className="text-sm font-semibold text-accent-blue">{nextRankName}</p>
+            <p className="text-sm font-semibold text-accent-teal">{nextRankName}</p>
             <p className="text-xs text-text-secondary">ใน ~{weeksEst} สัปดาห์</p>
           </div>
         )}

@@ -19,7 +19,7 @@ export default function HeroDetailError({
     <div className="card space-y-3">
       <ErrorState message="โหลดข้อมูลฮีโร่นี้ไม่สำเร็จ" onRetry={reset} />
       <div className="text-center">
-        <Link href="/heroes" className="text-xs text-accent-blue hover:underline">
+        <Link href="/heroes" className="text-xs text-accent-teal hover:underline">
           กลับ Hero Pool
         </Link>
       </div>

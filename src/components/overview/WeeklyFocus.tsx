@@ -39,7 +39,7 @@ export function WeeklyFocus({ weaknesses }: Props) {
             : null;
           return (
             <li key={w.id} className="flex items-start gap-3">
-              <span className="shrink-0 w-6 h-6 rounded-full bg-accent-blue/20 text-accent-blue text-xs font-bold flex items-center justify-center">
+              <span className="shrink-0 w-6 h-6 rounded-full bg-accent-teal/20 text-accent-teal text-xs font-bold flex items-center justify-center">
                 {i + 1}
               </span>
               <div className="flex-1 min-w-0">
@@ -59,7 +59,7 @@ export function WeeklyFocus({ weaknesses }: Props) {
       </ol>
       <Link
         href="/coach"
-        className="mt-4 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+        className="mt-4 inline-flex items-center gap-1.5 text-xs text-accent-teal hover:underline"
       >
         ดูรายละเอียดเพิ่มเติม →
       </Link>

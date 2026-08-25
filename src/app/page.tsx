@@ -13,10 +13,19 @@ import { WeeklyFocus } from "@/components/overview/WeeklyFocus";
 import { NextGameAdvice } from "@/components/overview/NextGameAdvice";
 import { PlayCalendar } from "@/components/overview/PlayCalendar";
 import { MostPlayedHeroes } from "@/components/overview/MostPlayedHeroes";
+import { SessionTracker } from "@/components/overview/SessionTracker";
+import { Card } from "@/components/ui/Card";
 import { RangeSelector } from "@/components/shared/RangeSelector";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { KpiCardSkeleton } from "@/components/shared/SkeletonCard";
-import type { SummaryRow, MmrSeriesRow, Weakness, HeroPoolWithMetaRow, DailySummary } from "@/types/database";
+import type {
+  SummaryRow,
+  MmrSeriesRow,
+  Weakness,
+  HeroPoolWithMetaRow,
+  DailySummary,
+  SessionWinrateRow,
+} from "@/types/database";
 
 export const metadata: Metadata = {
   title: "Overview",
@@ -51,6 +60,7 @@ export default async function OverviewPage({ searchParams }: PageProps) {
     { data: weaknessData },
     { data: heroPoolData },
     { data: dailyData },
+    { data: sessionData },
   ] = await Promise.all([
     db.rpc("get_summary", {
       p_start: rangeStart.toISOString(),
@@ -117,6 +127,12 @@ export default async function OverviewPage({ searchParams }: PageProps) {
     db.rpc("get_daily_summary", {
       p_start: new Date(Date.now() - 28 * 86400_000).toISOString().slice(0, 10),
     }),
+
+    // Session tracker — per-day game sequence, for the current session and
+    // the "does game 5 go worse than game 1" curve.
+    db.rpc("get_session_winrate", {
+      p_start: new Date(Date.now() - 90 * 86400_000).toISOString(),
+    }),
   ]);
 
   const roleCounts = ((roleData ?? []) as {role?: string}[]).reduce((acc: Record<string, number>, m) => {
@@ -131,14 +147,16 @@ export default async function OverviewPage({ searchParams }: PageProps) {
   const weaknesses = (weaknessData as Weakness[] | null) ?? [];
   const heroPool = (heroPoolData as HeroPoolWithMetaRow[] | null) ?? [];
   const dailySummaries = (dailyData as DailySummary[] | null) ?? [];
+  const sessions = (sessionData as SessionWinrateRow[] | null) ?? [];
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <Suspense fallback={<div className="skeleton h-16 w-64" />}>
-        <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} />
-      </Suspense>
-
-      <RangeSelector currentRange={range} currentRole={role} />
+    <div className="space-y-6 md:space-y-8 stagger">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <Suspense fallback={<div className="skeleton h-16 w-64" />}>
+          <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} />
+        </Suspense>
+        <RangeSelector currentRange={range} currentRole={role} />
+      </div>
 
       <FormBar matches={form10 as Parameters<typeof FormBar>[0]["matches"]} />
 
@@ -146,6 +164,7 @@ export default async function OverviewPage({ searchParams }: PageProps) {
         <KpiCards
           summary={summary}
           totalGames={Number(summary.total_games ?? 0)}
+          recent={form10 as Parameters<typeof KpiCards>[0]["recent"]}
         />
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -153,9 +172,10 @@ export default async function OverviewPage({ searchParams }: PageProps) {
         </div>
       )}
 
-      {/* Charts row */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="card">
+      {/* Trend row — MMR gets the wider column; it's the one chart people
+          come back for, and a pie needs far less room to be readable. */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           {mmrSeries.length > 0 ? (
             <MmrChart data={mmrSeries} />
           ) : (
@@ -164,18 +184,23 @@ export default async function OverviewPage({ searchParams }: PageProps) {
               description="STRATZ ไม่ส่ง rank ย้อนหลังรายแมตช์มาให้ — เห็นได้แค่ rank ปัจจุบันเท่านั้น กราฟนี้จะเริ่มมีข้อมูลเมื่อระบบเก็บ rank ของแมตช์ใหม่ ๆ ได้"
             />
           )}
-        </div>
-        <div className="card">
+        </Card>
+        <Card>
           <RolePieChart data={rolePieData} />
-        </div>
+        </Card>
       </div>
 
-      {/* OV-5, OV-9, OV-10 */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Habits row — when you play, and how the day goes as it wears on. */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SessionTracker rows={sessions} />
+        <PlayCalendar dailySummaries={dailySummaries} />
+      </div>
+
+      {/* Advice row */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <WeeklyFocus weaknesses={weaknesses} />
         <NextGameAdvice heroPool={heroPool} role={role === "all" ? null : role} />
         <MostPlayedHeroes heroPool={heroPool} />
-        <PlayCalendar dailySummaries={dailySummaries} />
       </div>
 
       <MatchTable matches={(recentMatches ?? []) as Parameters<typeof MatchTable>[0]["matches"]} />
@@ -194,7 +219,7 @@ async function OverviewHeader({
   const { data: profile } = user
     ? await userDb
         .from("profiles")
-        .select("persona_name, avatar_url, season_rank")
+        .select("persona_name, avatar_url, season_rank, season_leaderboard_rank")
         .eq("user_id", user.id)
         .single()
     : { data: null };
@@ -204,6 +229,7 @@ async function OverviewHeader({
       name={profile?.persona_name ?? "Player"}
       avatar={profile?.avatar_url ?? null}
       seasonRank={profile?.season_rank ?? null}
+      leaderboardRank={profile?.season_leaderboard_rank ?? null}
       isDotaPlus={false}
       lastSyncedAt={lastSyncedAt}
     />

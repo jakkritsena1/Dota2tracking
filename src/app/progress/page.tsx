@@ -7,6 +7,7 @@ import { RoleMmrLines } from "@/components/progress/RoleMmrLines";
 import { StreakStatsCard } from "@/components/progress/StreakStats";
 import { ImpVsMmrChart } from "@/components/progress/ImpVsMmrChart";
 import { Milestones } from "@/components/progress/Milestones";
+import { PageHeader } from "@/components/ui/PageHeader";
 import type {
   MmrSeriesRow,
   MmrForecastRow,
@@ -97,10 +98,12 @@ export default async function ProgressPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-xl font-bold text-text-primary">ความก้าวหน้า</h1>
-        <RangeSelector currentRange="30d" currentRole={role} />
-      </div>
+      <PageHeader
+        eyebrow="ความก้าวหน้า"
+        title="Progress"
+        description="เส้นทาง MMR สตรีค และสถิติที่ทำได้ดีที่สุด"
+        actions={<RangeSelector currentRange="30d" currentRole={role} />}
+      />
 
       {/* PR-1: MMR forecast */}
       <MmrForecast series={series} forecast={forecast} />

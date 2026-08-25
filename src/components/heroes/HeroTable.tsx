@@ -85,7 +85,7 @@ export function HeroTable({ heroes }: Props) {
               return (
                 <tr key={`${h.hero_id}-${h.role}`} className="hover:bg-bg-hover transition-colors">
                   <td className="py-2 px-3">
-                    <Link href={`/heroes/${h.hero_id}`} className="flex items-center gap-2 hover:text-accent-blue transition-colors">
+                    <Link href={`/heroes/${h.hero_id}`} className="flex items-center gap-2 hover:text-accent-teal transition-colors">
                       <Image
                         src={heroIconUrl(h.hero_id)}
                         alt={heroName}

@@ -196,6 +196,14 @@ export interface GoalProgressRow {
   expires_at: string | null;
 }
 
+export interface SessionWinrateRow {
+  play_date: string;   // local (Asia/Bangkok) calendar day
+  session_seq: number; // always 1 today — one session per day
+  game_seq: number;    // 1-based position of this game within the day
+  is_win: boolean;
+  match_id: number;
+}
+
 export interface HeroPoolWithMetaRow {
   hero_id: number;
   role: string;

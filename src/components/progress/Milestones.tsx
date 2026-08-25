@@ -64,20 +64,20 @@ export function Milestones({ bests }: Props) {
             <li key={b.metric} className="py-3 first:pt-0 last:pb-0">
               <div className="flex justify-between items-baseline mb-1">
                 <span className="text-sm text-text-primary">{cfg.label}</span>
-                <span className="text-sm font-bold text-accent-blue">
+                <span className="text-sm font-bold text-accent-teal">
                   {formatValue(b.metric, b.value)} {cfg.unit}
                 </span>
               </div>
               <div className="h-1.5 bg-border/40 rounded-full overflow-hidden mb-1.5">
                 <div
-                  className="h-full bg-accent-blue rounded-full"
+                  className="h-full bg-accent-teal rounded-full"
                   style={{ width: `${pct}%` }}
                 />
               </div>
               <div className="flex justify-between text-[10px] text-text-secondary">
                 <span>
                   {b.date ? formatMatchDate(b.date) : ""} ·{" "}
-                  <Link href={`/match/${b.match_id}`} className="text-accent-blue hover:underline">
+                  <Link href={`/match/${b.match_id}`} className="text-accent-teal hover:underline">
                     ดูเกม
                   </Link>
                 </span>

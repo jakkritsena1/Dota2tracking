@@ -49,7 +49,7 @@ export function MostPlayedHeroes({ heroPool }: Props) {
                 <div className="flex items-center justify-between gap-2">
                   <Link
                     href={`/heroes/${h.hero_id}`}
-                    className="text-xs font-medium text-text-primary hover:text-accent-blue truncate"
+                    className="text-xs font-medium text-text-primary hover:text-accent-teal truncate"
                   >
                     {getHeroName(h.hero_id)}
                   </Link>
@@ -86,7 +86,7 @@ export function MostPlayedHeroes({ heroPool }: Props) {
 
       <Link
         href="/heroes"
-        className="mt-2 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+        className="mt-2 inline-flex items-center gap-1.5 text-xs text-accent-teal hover:underline"
       >
         ดูฮีโร่ทั้งหมด →
       </Link>

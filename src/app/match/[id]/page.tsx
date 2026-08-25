@@ -2,11 +2,22 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Trophy, Skull, Clock, Swords } from "lucide-react";
+import { ArrowLeft, Trophy, Skull, Clock, Swords, Coins, Zap, Crosshair } from "lucide-react";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
-import { formatMatchDate, formatDuration, formatKDA, rankTierToName, cn } from "@/lib/utils";
-import { getHeroName, heroIconUrl } from "@/lib/hero-data";
+import {
+  formatMatchDate,
+  formatDuration,
+  formatKDA,
+  formatCompact,
+  roleLabel,
+  cn,
+} from "@/lib/utils";
+import { getHeroName, heroIconUrl, heroBannerUrl } from "@/lib/hero-data";
 import { getLiveMatchDetail } from "@/lib/stratz-match";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Badge, RankBadge } from "@/components/ui/Badge";
+import { StatTile } from "@/components/ui/StatTile";
+import { BenchmarkMeter } from "@/components/ui/Meter";
 import MatchScoreline from "@/components/match/MatchScoreline";
 import DraftBans from "@/components/match/DraftBans";
 import TeamScoreboard from "@/components/match/TeamScoreboard";
@@ -14,6 +25,10 @@ import KillMatrix from "@/components/match/KillMatrix";
 import TeamNetWorthChart from "@/components/match/TeamNetWorthChart";
 import LaneMatchup from "@/components/match/LaneMatchup";
 import SkillBuildTimeline from "@/components/match/SkillBuildTimeline";
+import WinProbabilityChart from "@/components/match/WinProbabilityChart";
+import ObjectiveTimeline from "@/components/match/ObjectiveTimeline";
+import ItemBuildTimeline from "@/components/match/ItemBuildTimeline";
+import WardMap from "@/components/match/WardMap";
 import type { Match } from "@/types/database";
 
 export async function generateMetadata({
@@ -80,83 +95,49 @@ export default async function MatchDetailPage({ params }: PageProps) {
   // never stored, so this degrades to the simpler view above if it's unavailable.
   const liveDetail = await getLiveMatchDetail(matchId);
 
+  // Which side was the tracked player on? Prefer the authoritative match on
+  // steam account id; fall back to inferring it from who won, which is right
+  // whenever the profile hasn't been linked yet.
+  const me = liveDetail?.players.find(
+    (p) => profile?.steam_account_id && p.steamAccountId === profile.steam_account_id,
+  );
+  const iWasRadiant = me ? me.isRadiant : liveDetail ? m.is_win === liveDetail.didRadiantWin : true;
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Back link */}
       <Link
         href="/matches"
-        className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors focus-ring"
+        className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors focus-ring rounded"
       >
         <ArrowLeft size={14} aria-hidden />
         กลับรายการแมตช์
       </Link>
 
-      {/* ── MD-1: Match header ──────────────────────────────── */}
-      <header className="card">
-        <div className="flex items-start gap-4">
-          {/* Hero image */}
-          <div className="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-bg-secondary">
-            <Image
-              src={heroIconUrl(m.hero_id)}
-              alt={getHeroName(m.hero_id)}
-              fill
-              className="object-cover"
-              sizes="80px"
-              unoptimized
-            />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-bold text-text-primary">
-                {getHeroName(m.hero_id)}
-              </h1>
-              <span
-                className={cn(
-                  "text-lg font-bold",
-                  m.is_win ? "text-win" : "text-loss"
-                )}
-                aria-label={m.is_win ? "ชนะ" : "แพ้"}
-              >
-                {m.is_win ? "VICTORY" : "DEFEAT"}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-4 mt-2 text-sm text-text-secondary">
-              <span className="flex items-center gap-1">
-                <Clock size={13} aria-hidden />
-                {formatMatchDate(m.start_time)} · {formatDuration(m.duration_sec)}
-              </span>
-              <span className="capitalize">{m.role ?? "—"}</span>
-              {m.rank_tier && (
-                <span>{rankTierToName(m.rank_tier)}</span>
-              )}
-              <span className="font-mono text-text-primary">
-                Match #{m.match_id}
-              </span>
-            </div>
-
-            {/* Tags */}
-            {(tags ?? []).length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {(tags ?? []).map((tag) => (
-                  <span
-                    key={tag.tag}
-                    className="px-2 py-0.5 rounded-md text-xs bg-bg-secondary text-text-secondary border border-border"
-                    title={`ความมั่นใจ: ${Math.round(tag.confidence * 100)}%`}
-                  >
-                    {tag.tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* ── Match header ─────────────────────────────────────── */}
+      <MatchHero match={m} tags={tags ?? []} />
 
       {/* ── Team scoreline ───────────────────────────────────── */}
       {liveDetail && (
         <MatchScoreline players={liveDetail.players} didRadiantWin={liveDetail.didRadiantWin} />
+      )}
+
+      {/* ── Win probability over time ────────────────────────── */}
+      {liveDetail && liveDetail.radiantWinRates.length > 1 && (
+        <WinProbabilityChart
+          radiantWinRates={liveDetail.radiantWinRates}
+          perspectiveIsRadiant={iWasRadiant}
+          durationSeconds={liveDetail.durationSeconds}
+          outcomeKind={liveDetail.outcomeKind}
+        />
+      )}
+
+      {/* ── Objectives ───────────────────────────────────────── */}
+      {liveDetail && (
+        <ObjectiveTimeline
+          towerDeaths={liveDetail.towerDeaths}
+          firstBloodTime={liveDetail.firstBloodTime}
+          durationSeconds={liveDetail.durationSeconds}
+        />
       )}
 
       {/* ── Draft (picks / bans) ────────────────────────────── */}
@@ -176,6 +157,14 @@ export default async function MatchDetailPage({ params }: PageProps) {
         />
       )}
 
+      {/* ── Item purchase order ──────────────────────────────── */}
+      {liveDetail && (
+        <ItemBuildTimeline
+          players={liveDetail.players}
+          trackedSteamAccountId={profile?.steam_account_id ?? undefined}
+        />
+      )}
+
       {/* ── Skill build order ────────────────────────────────── */}
       {liveDetail && <SkillBuildTimeline players={liveDetail.players} />}
 
@@ -187,53 +176,50 @@ export default async function MatchDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* ── MD-4: Stats vs benchmark ──────────────────────────── */}
+      {/* ── Vision ───────────────────────────────────────────── */}
+      {liveDetail && <WardMap players={liveDetail.players} />}
+
+      {/* ── Personal stats vs benchmark ──────────────────────── */}
       <section aria-labelledby="stats-heading">
-        <h2 id="stats-heading" className="section-title">สถิติเกมนี้</h2>
+        <h2 id="stats-heading" className="section-title">สถิติของคุณในเกมนี้</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard
+          <StatTile
             label="KDA"
             value={`${m.kills}/${m.deaths}/${m.assists}`}
-            sub={formatKDA(m.kills ?? 0, m.deaths ?? 0, m.assists ?? 0)}
-            icon={<Swords size={14} aria-hidden />}
+            sub={`ratio ${formatKDA(m.kills ?? 0, m.deaths ?? 0, m.assists ?? 0)}`}
+            icon={<Swords size={12} />}
           />
-          <StatCard
-            label="IMP Score"
-            value={m.imp ?? "—"}
-            benchmark={benchMap.get("imp")}
-            higherIsBetter
-            icon={<Trophy size={14} aria-hidden />}
-          />
-          <StatCard
-            label="GPM"
-            value={m.gpm ?? "—"}
-            benchmark={benchMap.get("gpm")}
-            higherIsBetter
-          />
-          <StatCard
+          <BenchmarkTile label="IMP Score" value={m.imp} bench={benchMap.get("imp")} icon={<Trophy size={12} />} />
+          <BenchmarkTile label="GPM" value={m.gpm} bench={benchMap.get("gpm")} icon={<Coins size={12} />} />
+          <BenchmarkTile
             label="Deaths"
-            value={m.deaths ?? "—"}
-            benchmark={benchMap.get("deaths")}
+            value={m.deaths}
+            bench={benchMap.get("deaths")}
             higherIsBetter={false}
-            icon={<Skull size={14} aria-hidden />}
+            icon={<Skull size={12} />}
           />
-          <StatCard label="XPM"        value={m.xpm ?? "—"} />
-          <StatCard label="Last Hits"  value={m.last_hits ?? "—"} />
-          <StatCard label="Denies"     value={m.denies ?? "—"} />
-          <StatCard label="CS @10"     value={m.cs_at_10 ?? "—"} benchmark={benchMap.get("cs_at_10")} higherIsBetter />
-          <StatCard label="Net Worth"  value={m.net_worth ? `${(m.net_worth / 1000).toFixed(1)}k` : "—"} />
-          <StatCard label="Hero Dmg"   value={m.hero_damage ? `${Math.round(m.hero_damage / 1000)}k` : "—"} />
-          <StatCard label="Tower Dmg"  value={m.tower_damage ? `${Math.round(m.tower_damage / 1000)}k` : "—"} />
-          <StatCard label="Healing"    value={m.healing ? `${Math.round(m.healing / 1000)}k` : "—"} />
+          <StatTile label="XPM" value={m.xpm ?? "—"} icon={<Zap size={12} />} />
+          <StatTile label="Last Hits" value={m.last_hits ?? "—"} sub={`denies ${m.denies ?? 0}`} />
+          <BenchmarkTile label="CS @10" value={m.cs_at_10} bench={benchMap.get("cs_at_10")} icon={<Crosshair size={12} />} />
+          <StatTile label="Net Worth" value={formatCompact(m.net_worth)} tone="gold" />
+          <StatTile label="Hero Dmg" value={formatCompact(m.hero_damage, 0)} />
+          <StatTile label="Tower Dmg" value={formatCompact(m.tower_damage, 0)} />
+          <StatTile label="Healing" value={formatCompact(m.healing, 0)} />
+          <StatTile label="Lane" value={m.lane_outcome ? laneOutcomeLabel(m.lane_outcome) : "—"} sub={roleLabel(m.role)} />
         </div>
       </section>
 
-      {/* ── MD-2: Net worth timeline ─────────────────────────── */}
+      {/* ── Personal net worth timeline ──────────────────────── */}
       {nwpm.length > 0 && (
-        <section aria-labelledby="timeline-heading">
-          <h2 id="timeline-heading" className="section-title">Net Worth Timeline</h2>
-          <NetworthTimeline data={nwpm} />
-        </section>
+        <Card padded={false}>
+          <CardHeader
+            title="Net Worth ของคุณตลอดเกม"
+            subtitle="เทียบกับค่าเฉลี่ยของทั้งสองทีม — เส้นตกแรง ๆ คือช่วงที่เสียเปรียบ"
+          />
+          <div className="p-4">
+            <NetworthTimeline data={nwpm} />
+          </div>
+        </Card>
       )}
 
       {/* ── Kill breakdown grid ──────────────────────────────── */}
@@ -244,7 +230,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
         <section aria-labelledby="evidence-heading">
           <h2 id="evidence-heading" className="section-title">หลักฐานแท็ก</h2>
           <div className="space-y-2">
-            {(tags ?? []).map((tag) => (
+            {(tags ?? []).map((tag: { tag: string; confidence: number; reason: unknown }) => (
               <details key={tag.tag} className="card text-sm">
                 <summary className="cursor-pointer text-text-primary font-medium select-none">
                   {tag.tag}
@@ -266,61 +252,146 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
 // ── Sub-components ────────────────────────────────────────────
 
-interface StatCardProps {
-  label: string;
-  value: number | string;
-  sub?: string;
-  benchmark?: { p25: number; p50: number; p75: number };
-  higherIsBetter?: boolean;
-  icon?: React.ReactNode;
-}
-
-function StatCard({ label, value, sub, benchmark, higherIsBetter = true, icon }: StatCardProps) {
-  let valueColor = "text-text-primary";
-  let percentileLabel: string | null = null;
-
-  if (benchmark && typeof value === "number") {
-    if (higherIsBetter) {
-      if (value >= benchmark.p75) {
-        valueColor = "text-win";
-        percentileLabel = "> p75";
-      } else if (value < benchmark.p25) {
-        valueColor = "text-loss";
-        percentileLabel = "< p25";
-      }
-    } else {
-      if (value <= benchmark.p25) {
-        valueColor = "text-win";
-        percentileLabel = "< p25 ✓";
-      } else if (value >= benchmark.p75) {
-        valueColor = "text-loss";
-        percentileLabel = "> p75";
-      }
-    }
-  }
-
+/**
+ * Full-bleed header. The hero's own splash art sits behind the text at low
+ * opacity — it identifies the match faster than any label, and it's the one
+ * place in the app where a big decorative image earns its bytes.
+ */
+function MatchHero({
+  match: m,
+  tags,
+}: {
+  match: Match;
+  tags: { tag: string; confidence: number }[];
+}) {
   return (
-    <div className="card space-y-1">
-      <p className="text-text-muted text-xs flex items-center gap-1">
-        {icon}
-        {label}
-      </p>
-      <p className={cn("text-xl font-bold", valueColor)}>{String(value)}</p>
-      {sub && <p className="text-text-muted text-xs">{sub}</p>}
-      {percentileLabel && (
-        <p className={cn("text-xs font-medium", valueColor)}>{percentileLabel}</p>
-      )}
-      {benchmark && (
-        <p className="text-text-muted text-xs">
-          p50: {benchmark.p50.toFixed(0)}
-        </p>
-      )}
-    </div>
+    <Card padded={false} accent={m.is_win ? "win" : "loss"} className="relative">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+        <Image
+          src={heroBannerUrl(m.hero_id)}
+          alt=""
+          fill
+          className="object-cover object-top opacity-[0.13]"
+          sizes="100vw"
+          unoptimized
+          priority
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, #141414 25%, rgba(20,20,20,0.85) 55%, rgba(20,20,20,0.4))",
+          }}
+        />
+      </div>
+
+      <div className="relative flex items-start gap-4 p-4">
+        <div className="relative h-16 w-16 md:h-20 md:w-20 shrink-0 rounded-md overflow-hidden bg-bg-secondary ring-hairline">
+          <Image
+            src={heroIconUrl(m.hero_id)}
+            alt={getHeroName(m.hero_id)}
+            fill
+            className="object-cover"
+            sizes="80px"
+            unoptimized
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl font-bold text-text-primary">{getHeroName(m.hero_id)}</h1>
+            <span
+              className={cn(
+                "text-lg font-extrabold tracking-wide",
+                m.is_win ? "text-win" : "text-loss",
+              )}
+            >
+              {m.is_win ? "VICTORY" : "DEFEAT"}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-sm text-text-secondary">
+            <span className="flex items-center gap-1.5">
+              <Clock size={13} aria-hidden />
+              {formatMatchDate(m.start_time)} · {formatDuration(m.duration_sec)}
+            </span>
+            <span className="chip">{roleLabel(m.role)}</span>
+            {m.rank_tier ? <RankBadge rankTier={m.rank_tier} /> : null}
+            <span className="font-mono text-xs text-text-muted">#{m.match_id}</span>
+          </div>
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {tags.map((tag) => (
+                <Badge
+                  key={tag.tag}
+                  tone="neutral"
+                  title={`ความมั่นใจ: ${Math.round(tag.confidence * 100)}%`}
+                >
+                  {tag.tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
   );
 }
 
+/** StatTile wired to a p25/p50/p75 benchmark, with the meter and verdict. */
+function BenchmarkTile({
+  label,
+  value,
+  bench,
+  higherIsBetter = true,
+  icon,
+}: {
+  label: string;
+  value: number | null;
+  bench?: { p25: number; p50: number; p75: number };
+  higherIsBetter?: boolean;
+  icon?: React.ReactNode;
+}) {
+  if (value == null) return <StatTile label={label} value="—" icon={icon} />;
+  if (!bench) return <StatTile label={label} value={value} icon={icon} />;
+
+  const good = higherIsBetter ? value >= bench.p75 : value <= bench.p25;
+  const bad = higherIsBetter ? value < bench.p25 : value > bench.p75;
+
+  return (
+    <StatTile
+      label={label}
+      value={value}
+      icon={icon}
+      tone={good ? "win" : bad ? "loss" : undefined}
+      meter={
+        <BenchmarkMeter
+          value={value}
+          p25={bench.p25}
+          p50={bench.p50}
+          p75={bench.p75}
+          higherIsBetter={higherIsBetter}
+          className="my-0.5"
+        />
+      }
+      sub={
+        good
+          ? `เหนือ p75 (${bench.p75.toFixed(0)})`
+          : bad
+          ? `ต่ำกว่า p25 (${bench.p25.toFixed(0)})`
+          : `ค่ากลางของคุณ ${bench.p50.toFixed(0)}`
+      }
+    />
+  );
+}
+
+function laneOutcomeLabel(outcome: "win" | "tie" | "loss"): string {
+  return { win: "ชนะเลน", tie: "เสมอ", loss: "แพ้เลน" }[outcome];
+}
+
 function NetworthTimeline({ data }: { data: number[] }) {
-  const max = Math.max(...data.map(Math.abs));
+  const max = Math.max(...data.map(Math.abs), 1);
   const height = 80;
   const width = Math.max(data.length * 4, 200);
 
@@ -341,67 +412,57 @@ function NetworthTimeline({ data }: { data: number[] }) {
   })();
 
   return (
-    <div className="card overflow-hidden">
-      <div className="scroll-x">
-        <svg
-          width={width}
-          height={height + 20}
-          aria-label="กราฟ net worth ตลอดเกม"
-          role="img"
-        >
-          {/* Zero line */}
-          <line
-            x1={0} y1={height / 2}
-            x2={width} y2={height / 2}
-            stroke="#262626" strokeWidth={1}
-          />
+    <div className="scroll-x">
+      <svg
+        width={width}
+        height={height + 20}
+        aria-label="กราฟ net worth ตลอดเกม"
+        role="img"
+      >
+        <line x1={0} y1={height / 2} x2={width} y2={height / 2} stroke="#262626" strokeWidth={1} />
 
-          {/* Positive area (our favour) */}
-          <polyline
-            points={points.join(" ")}
-            fill="none"
-            stroke={throwMin ? "#F59E0B" : "#2ACB4F"}
-            strokeWidth={2}
-          />
+        <polyline
+          points={points.join(" ")}
+          fill="none"
+          stroke={throwMin ? "#F59E0B" : "#2ACB4F"}
+          strokeWidth={2}
+        />
 
-          {/* Throw moment marker */}
-          {throwMin !== null && (
-            <g>
-              <line
-                x1={(throwMin / (data.length - 1)) * width}
-                y1={4}
-                x2={(throwMin / (data.length - 1)) * width}
-                y2={height - 4}
-                stroke="#EC041F"
-                strokeWidth={1.5}
-                strokeDasharray="4 2"
-              />
-              <text
-                x={(throwMin / (data.length - 1)) * width + 3}
-                y={14}
-                fill="#EC041F"
-                fontSize={10}
-              >
-                Throw ~{throwMin}m
-              </text>
-            </g>
-          )}
-
-          {/* Minute labels */}
-          {[10, 20, 30, 40].filter((m) => m < data.length).map((min) => (
+        {throwMin !== null && (
+          <g>
+            <line
+              x1={(throwMin / (data.length - 1)) * width}
+              y1={4}
+              x2={(throwMin / (data.length - 1)) * width}
+              y2={height - 4}
+              stroke="#EC041F"
+              strokeWidth={1.5}
+              strokeDasharray="4 2"
+            />
             <text
-              key={min}
-              x={(min / (data.length - 1)) * width}
-              y={height + 14}
-              fill="#5C5C5C"
+              x={(throwMin / (data.length - 1)) * width + 3}
+              y={14}
+              fill="#EC041F"
               fontSize={10}
-              textAnchor="middle"
             >
-              {min}m
+              Throw ~{throwMin}m
             </text>
-          ))}
-        </svg>
-      </div>
+          </g>
+        )}
+
+        {[10, 20, 30, 40].filter((min) => min < data.length).map((min) => (
+          <text
+            key={min}
+            x={(min / (data.length - 1)) * width}
+            y={height + 14}
+            fill="#5C5C5C"
+            fontSize={10}
+            textAnchor="middle"
+          >
+            {min}m
+          </text>
+        ))}
+      </svg>
     </div>
   );
 }

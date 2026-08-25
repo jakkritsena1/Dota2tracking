@@ -19,7 +19,7 @@ function heroLabel(row: HeroPoolWithMetaRow): string {
 
 function labelColor(label: string): string {
   if (label === "เมต้าดี") return "text-win bg-win/10";
-  if (label === "ชง") return "text-accent-blue bg-accent-blue/10";
+  if (label === "ชง") return "text-accent-teal bg-accent-teal/10";
   if (label === "กำลังฝึก") return "text-text-secondary bg-border/30";
   return "text-accent-gold bg-accent-gold/10";
 }
@@ -89,7 +89,7 @@ export function NextGameAdvice({ heroPool, role }: Props) {
       </ul>
       <Link
         href="/heroes"
-        className="mt-4 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+        className="mt-4 inline-flex items-center gap-1.5 text-xs text-accent-teal hover:underline"
       >
         ดูฮีโร่ทั้งหมด →
       </Link>

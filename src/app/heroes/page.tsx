@@ -7,6 +7,7 @@ import { HeroRecommendations } from "@/components/heroes/HeroRecommendations";
 import { HeroTable } from "@/components/heroes/HeroTable";
 import { PatchImpact } from "@/components/heroes/PatchImpact";
 import type { HeroPoolWithMetaRow, HeroMetaDaily } from "@/types/database";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Heroes",
@@ -53,10 +54,12 @@ export default async function HeroesPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-xl font-bold text-text-primary">Hero Pool</h1>
-        <RangeSelector currentRange="all" currentRole={role} />
-      </div>
+      <PageHeader
+        eyebrow="ฮีโร่"
+        title="Hero Pool"
+        description="ฝีมือของคุณกับแต่ละฮีโร่ เทียบกับเมต้าปัจจุบัน"
+        actions={<RangeSelector currentRange="all" currentRole={role} />}
+      />
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* HE-1: 4-quadrant scatter */}

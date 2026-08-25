@@ -7,6 +7,7 @@ import { WeaknessCards } from "@/components/coach/WeaknessCards";
 import { BenchmarkTimeline } from "@/components/coach/BenchmarkTimeline";
 import { GoalsList } from "@/components/coach/GoalsList";
 import type { RadarScoreRow, GoalProgressRow, Weakness, Benchmark } from "@/types/database";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Coach",
@@ -84,10 +85,12 @@ export default async function CoachPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-xl font-bold text-text-primary">Self Coach</h1>
-        <RangeSelector currentRange="30d" currentRole={role} />
-      </div>
+      <PageHeader
+        eyebrow="โค้ช"
+        title="Self Coach"
+        description="จุดอ่อนที่แก้ได้จริง เรียงตามผลกระทบต่ออัตราชนะ"
+        actions={<RangeSelector currentRange="30d" currentRole={role} />}
+      />
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* CO-1: Radar */}

@@ -77,7 +77,7 @@ export function HeroRecommendations({ pool }: Props) {
                 <p className="text-sm font-medium text-text-primary truncate">{heroName}</p>
                 <div className="flex flex-wrap gap-1 mt-0.5">
                   {h.reasons.map(r => (
-                    <span key={r} className="text-[10px] bg-accent-blue/10 text-accent-blue px-1.5 py-0.5 rounded-full">
+                    <span key={r} className="text-[10px] bg-accent-teal/10 text-accent-teal px-1.5 py-0.5 rounded-full">
                       {r}
                     </span>
                   ))}

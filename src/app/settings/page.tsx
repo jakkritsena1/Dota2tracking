@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
 import { TriggerSyncButton } from "./TriggerSyncButton";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -28,7 +29,11 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-2xl animate-fade-in">
-      <h1 className="text-xl font-bold">Settings</h1>
+      <PageHeader
+        eyebrow="ระบบ"
+        title="Settings"
+        description="สถานะข้อมูลและการซิงก์จาก STRATZ"
+      />
 
       {/* Stats */}
       <section className="card space-y-3">

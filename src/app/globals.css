@@ -1,20 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* STRATZ-style "dense by design" dark theme — near-black surfaces built
-     from layered translucency, tight radius for a tool/terminal feel
-     rather than a soft consumer-app one. */
+  /* STRATZ-style "dense by design" dark theme — a pure-black ground with
+     near-black cards, depth built from an inset hairline plus a tight ambient
+     shadow rather than drawn borders, and a 4px radius throughout for a
+     tool/terminal feel rather than a soft consumer-app one.
+     These values were sampled from stratz.com's own computed styles. */
   --radius: 0.25rem;
   --bg-primary: #000000;
   --bg-secondary: #0A0A0A;
   --bg-card: #141414;
   --border: #262626;
+  --hairline: rgba(255, 255, 255, 0.08);
   --text-primary: #E6E6E6;
   --text-secondary: #999999;
+
+  /* Sidebar width, shared between the shell and any sticky offsets. */
+  --sidebar-w: 15rem;
 }
 
 @layer base {
@@ -23,13 +29,23 @@
   }
 
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', 'Noto Sans Thai', system-ui, sans-serif;
   }
 
   body {
     @apply bg-bg-primary text-text-primary min-h-screen;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Stat-heavy UI: digits must not jitter between rows or on re-render. */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1, h2, h3 {
+    @apply tracking-tight;
   }
 
   /* Scrollbar styling — subtle, dark-themed */
@@ -46,19 +62,47 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-border-strong;
   }
+
+  /* Respect reduced-motion for every decorative animation we ship. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
 }
 
 @layer components {
-  /* Card variants */
+  /* ── Surfaces ──────────────────────────────────────────────────
+     .card is the single elevated surface. Depth comes from an inset
+     hairline + ambient shadow (STRATZ's own treatment) rather than a
+     1px border, which at this information density would add a visible
+     grid of lines across the page. */
   .card {
-    @apply bg-bg-card border border-border rounded-lg p-4;
+    @apply bg-bg-card rounded-lg p-4 shadow-card border-0;
   }
 
   .card-hover {
-    @apply card transition-colors hover:border-border-strong hover:bg-bg-hover cursor-pointer;
+    @apply card transition-all duration-150 hover:shadow-card-hover hover:bg-bg-hover cursor-pointer;
   }
 
-  /* Win / Loss badges */
+  /* A surface stacked *inside* a card — translucent so it composes over
+     whatever it sits on instead of pinning a second hard-coded shade. */
+  .surface {
+    @apply bg-bg-overlay rounded-md;
+  }
+
+  /* Card header: title on the left, optional action on the right, with a
+     hairline underneath. Pairs with .card p-0 for full-bleed content. */
+  .card-header {
+    @apply flex items-center justify-between gap-3 px-4 py-3;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  /* ── Badges & chips ───────────────────────────────────────────── */
   .badge-win {
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-accent-green-dim text-win;
   }
@@ -67,26 +111,87 @@
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-accent-red-dim text-loss;
   }
 
+  /* Neutral pill for metadata (patch, lobby type, tag, count…). */
+  .chip {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium
+           bg-bg-overlay text-text-secondary;
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+
   /* KPI delta */
   .delta-positive { @apply text-win text-sm font-medium; }
   .delta-negative { @apply text-loss text-sm font-medium; }
   .delta-neutral  { @apply text-text-secondary text-sm; }
 
-  /* Skeleton loader */
+  /* ── Skeleton loader ──────────────────────────────────────────
+     A moving sheen reads as "loading" far more clearly than a pulse
+     alone, and keeps the layout perfectly still while it waits. */
   .skeleton {
-    @apply animate-pulse-subtle bg-bg-secondary rounded;
+    @apply relative overflow-hidden bg-bg-secondary rounded;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 animate-shimmer;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
+    transform: translateX(-100%);
   }
 
-  /* Section heading */
+  /* ── Typography helpers ───────────────────────────────────────── */
   .section-title {
     @apply text-text-secondary text-xs font-semibold uppercase tracking-wider mb-3;
+  }
+
+  /* Small all-caps column/field label. */
+  .label-xs {
+    @apply text-text-muted text-[0.6875rem] font-semibold uppercase tracking-wider;
+  }
+
+  .brand-text {
+    @apply bg-brand-gradient bg-clip-text text-transparent font-extrabold tracking-tight;
+  }
+
+  /* ── Data tables ──────────────────────────────────────────────
+     Hairline row separators only — no vertical rules, no zebra. Density
+     comes from tight padding; scannability from the hover highlight. */
+  .table-data {
+    @apply w-full text-sm;
+  }
+  .table-data thead th {
+    @apply label-xs text-left px-3 py-2 whitespace-nowrap font-semibold;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .table-data tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    @apply transition-colors;
+  }
+  .table-data tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .table-data tbody tr:hover {
+    @apply bg-bg-overlay;
+  }
+  .table-data td {
+    @apply px-3 py-2.5 align-middle;
+  }
+  .table-data .num {
+    @apply text-right font-mono tabular-nums;
   }
 }
 
 @layer utilities {
   /* Accessible focus ring */
   .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary;
+  }
+
+  /* Inset hairline — the border substitute used across surfaces. */
+  .ring-hairline {
+    box-shadow: inset 0 0 0 1px var(--hairline);
   }
 
   /* Overflow scroll with hidden scrollbar (use for horizontal tables on mobile) */
@@ -102,4 +207,17 @@
   .sr-table-caption {
     @apply sr-only;
   }
+
+  /* Stagger children of an animate-fade-in container so a page assembles
+     top-to-bottom instead of popping in as one block. */
+  .stagger > * {
+    animation: fade-in 0.28s ease-out both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(6) { animation-delay: 200ms; }
+  .stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
 }

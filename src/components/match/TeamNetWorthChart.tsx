@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { LineChart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 interface TeamNetWorthChartProps {
   radiantNetworthLeads: number[]; // per-minute, positive = Radiant ahead
@@ -41,46 +44,32 @@ export default function TeamNetWorthChart({
   const unit = metric === "xp" ? "XP" : "";
 
   return (
-    <section aria-labelledby="team-networth-heading">
-      <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-        <h2 id="team-networth-heading" className="section-title mb-0">
-          {metric === "xp" ? "Experience ทั้งสองทีม" : "Net Worth ทั้งสองทีม"}
-        </h2>
-        <div className="flex items-center gap-3">
-          {hasXp && (
-            <div className="flex items-center rounded-md border border-border overflow-hidden text-xs">
-              <button
-                type="button"
-                onClick={() => setMetric("networth")}
-                className={cn(
-                  "px-2.5 py-1 transition-colors",
-                  metric === "networth"
-                    ? "bg-accent-blue text-white"
-                    : "text-text-secondary hover:bg-bg-hover",
-                )}
-              >
-                Net Worth
-              </button>
-              <button
-                type="button"
-                onClick={() => setMetric("xp")}
-                className={cn(
-                  "px-2.5 py-1 transition-colors",
-                  metric === "xp"
-                    ? "bg-accent-blue text-white"
-                    : "text-text-secondary hover:bg-bg-hover",
-                )}
-              >
-                XP
-              </button>
-            </div>
-          )}
-          <span className={cn("text-xs font-medium whitespace-nowrap", leadingColor)}>
-            {leadingTeam} นำ {(Math.abs(finalLead) / 1000).toFixed(1)}k {unit}
-          </span>
-        </div>
-      </div>
-      <div className="card overflow-hidden">
+    <Card padded={false}>
+      <CardHeader
+        id="team-networth-heading"
+        icon={<LineChart size={14} />}
+        title={metric === "xp" ? "Experience ทั้งสองทีม" : "Net Worth ทั้งสองทีม"}
+        subtitle="ค่าบวกคือ Radiant นำ ค่าลบคือ Dire นำ"
+        action={
+          <div className="flex items-center gap-3">
+            {hasXp && (
+              <SegmentedControl
+                ariaLabel="เลือกตัวชี้วัด"
+                value={metric}
+                onChange={setMetric}
+                segments={[
+                  { value: "networth", label: "Net Worth" },
+                  { value: "xp", label: "XP" },
+                ]}
+              />
+            )}
+            <span className={cn("font-medium whitespace-nowrap", leadingColor)}>
+              {leadingTeam} นำ {(Math.abs(finalLead) / 1000).toFixed(1)}k {unit}
+            </span>
+          </div>
+        }
+      />
+      <div className="p-4">
         <div className="scroll-x">
           <svg width={width} height={height + 20} aria-label="กราฟเทียบสองทีม" role="img">
             <line x1={0} y1={midY} x2={width} y2={midY} stroke="#262626" strokeWidth={1} />
@@ -97,11 +86,8 @@ export default function TeamNetWorthChart({
             ))}
           </svg>
         </div>
-        <p className="px-4 py-2 text-text-muted text-[11px] border-t border-border">
-          บนเส้น = Radiant นำ · ใต้เส้น = Dire นำ
-        </p>
       </div>
-    </section>
+    </Card>
   );
 }
 

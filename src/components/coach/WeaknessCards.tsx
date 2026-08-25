@@ -22,7 +22,7 @@ function ImpactBar({ value }: { value: number }) {
   return (
     <div className="h-1.5 bg-border/40 rounded-full overflow-hidden">
       <div
-        className="h-full bg-accent-blue rounded-full"
+        className="h-full bg-accent-teal rounded-full"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -87,7 +87,7 @@ export function WeaknessCards({ weaknesses }: Props) {
                     <Link
                       key={mid}
                       href={`/match/${mid}`}
-                      className="text-[10px] text-accent-blue hover:underline"
+                      className="text-[10px] text-accent-teal hover:underline"
                     >
                       #{mid}
                     </Link>

@@ -72,6 +72,25 @@ export function rankTierToName(rankTier: number | null): string {
   return `${name} ${stars}`;
 }
 
+// Medal colours, Herald → Immortal. Mirrors the `rank.*` Tailwind tokens —
+// kept here too because SVG fills and inline styles can't use a class.
+const RANK_COLORS = [
+  "#999999", // (unranked)
+  "#9D9D9D", // Herald
+  "#7B904B", // Guardian
+  "#AE6F3B", // Crusader
+  "#8A9AC4", // Archon
+  "#C1C2B3", // Legend
+  "#8AB7D9", // Ancient
+  "#C48DFE", // Divine
+  "#B1CCFB", // Immortal
+];
+
+export function rankTierColor(rankTier: number | null): string {
+  if (!rankTier) return RANK_COLORS[0];
+  return RANK_COLORS[Math.min(8, Math.floor(rankTier / 10))] ?? RANK_COLORS[0];
+}
+
 export function rankTierToMmr(rankTier: number | null): number {
   if (!rankTier) return 0;
   const bracket = Math.floor(rankTier / 10);
@@ -121,4 +140,20 @@ export const MIN_GAMES_FOR_SUMMARY = 10;
 
 export function hasSufficientSamples(count: number, min = MIN_GAMES_FOR_INSIGHT): boolean {
   return count >= min;
+}
+
+// ── Compact number / clock formatting ────────────────────────
+
+/** 12_345 → "12.3k". Used for net worth, damage, healing. */
+export function formatCompact(value: number | null | undefined, digits = 1): string {
+  if (value == null || !Number.isFinite(value)) return "—";
+  if (Math.abs(value) < 1000) return String(Math.round(value));
+  return `${(value / 1000).toFixed(digits)}k`;
+}
+
+/** Game clock from seconds — "8:04", or "-1:30" for pre-horn events. */
+export function formatClock(seconds: number): string {
+  const sign = seconds < 0 ? "-" : "";
+  const abs = Math.abs(Math.round(seconds));
+  return `${sign}${Math.floor(abs / 60)}:${(abs % 60).toString().padStart(2, "0")}`;
 }

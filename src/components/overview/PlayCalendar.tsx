@@ -114,7 +114,7 @@ export function PlayCalendar({ dailySummaries }: Props) {
 
       <Link
         href="/progress"
-        className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent-blue hover:underline"
+        className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent-teal hover:underline"
       >
         ดูสถิติแยกวัน →
       </Link>

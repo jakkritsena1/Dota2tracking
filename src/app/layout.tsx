@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
-import AppShell from "@/components/layout/AppShell";
+import AppShell, { type Profile } from "@/components/layout/AppShell";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
 
 export const metadata: Metadata = {
@@ -26,11 +27,11 @@ export default async function RootLayout({
   const supabase = getServerSupabaseForUser();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let profile: { persona_name: string | null; avatar_url: string | null } | null = null;
+  let profile: Profile | null = null;
   if (user) {
     const { data } = await supabase
       .from("profiles")
-      .select("persona_name, avatar_url")
+      .select("persona_name, avatar_url, season_rank, season_leaderboard_rank")
       .eq("user_id", user.id)
       .single();
     profile = data;
@@ -40,6 +41,7 @@ export default async function RootLayout({
     <html lang="th" suppressHydrationWarning>
       <body>
         <AppShell profile={profile}>{children}</AppShell>
+        <SpeedInsights />
       </body>
     </html>
   );

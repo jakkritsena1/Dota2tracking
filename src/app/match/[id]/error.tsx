@@ -19,7 +19,7 @@ export default function MatchDetailError({
     <div className="card space-y-3">
       <ErrorState message="โหลดรายละเอียดแมตช์นี้ไม่สำเร็จ" onRetry={reset} />
       <div className="text-center">
-        <Link href="/matches" className="text-xs text-accent-blue hover:underline">
+        <Link href="/matches" className="text-xs text-accent-teal hover:underline">
           กลับรายการแมตช์
         </Link>
       </div>
