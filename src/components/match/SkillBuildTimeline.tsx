@@ -68,19 +68,20 @@ function PlayerSkillRow({ player }: { player: LiveMatchPlayer }) {
           {player.skillBuild.map((s, i) => (
             <div
               key={i}
-              className="relative shrink-0"
+              className="relative shrink-0 animate-scale-in opacity-0"
+              style={{ animationDelay: `${Math.min(i * 25, 500)}ms`, animationFillMode: "both" }}
               title={`Lv.${s.levelObtained} — ${s.displayName}`}
             >
               {s.isTalent ? (
-                <div className="flex items-center justify-center h-7 px-1.5 rounded-sm bg-accent-purple/15 border border-accent-purple/40">
-                  <span className="text-accent-purple text-[9px] font-semibold whitespace-nowrap">
-                    Talent
+                <div className="flex items-center justify-center h-7 max-w-[6.5rem] px-1.5 rounded-sm bg-accent-purple/15 border border-accent-purple/40 transition-transform hover:scale-110 hover:z-10">
+                  <span className="text-accent-purple text-[9px] font-semibold leading-tight text-center truncate">
+                    {s.displayName}
                   </span>
                 </div>
               ) : (
                 <div
                   className={cn(
-                    "relative h-7 w-7 rounded-sm overflow-hidden bg-bg-secondary border",
+                    "relative h-7 w-7 rounded-sm overflow-hidden bg-bg-secondary border transition-transform hover:scale-110 hover:z-10",
                     s.isMaxLevel ? "border-accent-gold" : "border-border/50",
                   )}
                 >
