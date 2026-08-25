@@ -64,6 +64,10 @@ const MATCH_DETAIL_QUERY = `
           killEvents { time target }
           itemPurchases { time itemId }
           wards { time type positionX positionY }
+          lastHitsPerMinute
+          deniesPerMinute
+          networthPerMinute
+          experiencePerMinute
         }
         abilities {
           abilityId
@@ -169,6 +173,13 @@ export interface LiveMatchPlayer {
   skillBuild: LiveSkillEvent[];
   itemPurchases: LiveItemPurchase[];
   wards: LiveWardEvent[];
+  // Per-minute cumulative snapshots (index 0 = end of minute 1), used for
+  // the Lanes tab's @5/@10 columns. STRATZ field names confirmed via
+  // GraphQL introspection on MatchPlayerStatsType on 2026-08-25.
+  lastHitsPerMinute: number[];
+  deniesPerMinute: number[];
+  networthPerMinute: number[];
+  experiencePerMinute: number[];
 }
 
 export interface LiveMatchDetail {
@@ -298,6 +309,10 @@ export async function getLiveMatchDetail(matchId: number): Promise<LiveMatchDeta
         x: w.positionX,
         y: w.positionY,
       })),
+      lastHitsPerMinute: p.stats?.lastHitsPerMinute ?? [],
+      deniesPerMinute: p.stats?.deniesPerMinute ?? [],
+      networthPerMinute: p.stats?.networthPerMinute ?? [],
+      experiencePerMinute: p.stats?.experiencePerMinute ?? [],
     })),
   };
 

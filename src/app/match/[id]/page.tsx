@@ -1,26 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowLeft, Trophy, Skull, Clock, Swords, Coins, Zap, Crosshair } from "lucide-react";
+import { Trophy, Skull, Swords, Coins, Zap, Crosshair } from "lucide-react";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
-import {
-  formatMatchDate,
-  formatDuration,
-  formatKDA,
-  formatCompact,
-  roleLabel,
-  cn,
-} from "@/lib/utils";
-import { getHeroName, heroIconUrl, heroBannerUrl } from "@/lib/hero-data";
+import { formatKDA, formatCompact, roleLabel } from "@/lib/utils";
 import { getLiveMatchDetail } from "@/lib/stratz-match";
-import { Card, CardHeader } from "@/components/ui/Card";
-import { Badge, RankBadge } from "@/components/ui/Badge";
 import { StatTile } from "@/components/ui/StatTile";
 import { BenchmarkMeter } from "@/components/ui/Meter";
-import MatchScoreline from "@/components/match/MatchScoreline";
+import { Card, CardHeader } from "@/components/ui/Card";
 import DraftBans from "@/components/match/DraftBans";
-import TeamScoreboard from "@/components/match/TeamScoreboard";
 import KillMatrix from "@/components/match/KillMatrix";
 import TeamNetWorthChart from "@/components/match/TeamNetWorthChart";
 import LaneMatchup from "@/components/match/LaneMatchup";
@@ -29,6 +16,7 @@ import WinProbabilityChart from "@/components/match/WinProbabilityChart";
 import ObjectiveTimeline from "@/components/match/ObjectiveTimeline";
 import ItemBuildTimeline from "@/components/match/ItemBuildTimeline";
 import WardMap from "@/components/match/WardMap";
+import MatchScoreline from "@/components/match/MatchScoreline";
 import type { Match } from "@/types/database";
 
 export async function generateMetadata({
@@ -44,7 +32,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function MatchDetailPage({ params }: PageProps) {
+export default async function MatchOverviewPage({ params }: PageProps) {
   const { id } = await params;
   const matchId = parseInt(id, 10);
   if (isNaN(matchId)) notFound();
@@ -62,14 +50,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   const m = match as Match;
 
-  // Fetch tags for this match
   const { data: tags } = await db
     .from("match_tags")
     .select("tag, confidence, reason")
     .eq("match_id", matchId)
     .order("confidence", { ascending: false });
 
-  // Personal benchmarks for comparison (most recent, this match's role)
   const { data: benchmarks } = await db
     .from("player_benchmarks")
     .select("metric, p25, p50, p75")
@@ -82,40 +68,22 @@ export default async function MatchDetailPage({ params }: PageProps) {
     (benchmarks ?? []).map((b: any) => [b.metric, { p25: b.p25!, p50: b.p50!, p75: b.p75! }])
   );
 
-  // Net worth timeline from raw payload
   const nwpm = (m.raw as { networthPerMinute?: number[] } | null)?.networthPerMinute ?? [];
 
-  // Current user's steam account id, to highlight "you" in the full scoreboard
   const { data: profile } = await db
     .from("profiles")
     .select("steam_account_id")
     .single();
 
-  // Full 10-player detail (draft, items, kill events) fetched live from STRATZ —
-  // never stored, so this degrades to the simpler view above if it's unavailable.
   const liveDetail = await getLiveMatchDetail(matchId);
 
-  // Which side was the tracked player on? Prefer the authoritative match on
-  // steam account id; fall back to inferring it from who won, which is right
-  // whenever the profile hasn't been linked yet.
   const me = liveDetail?.players.find(
     (p) => profile?.steam_account_id && p.steamAccountId === profile.steam_account_id,
   );
   const iWasRadiant = me ? me.isRadiant : liveDetail ? m.is_win === liveDetail.didRadiantWin : true;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <Link
-        href="/matches"
-        className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors focus-ring rounded"
-      >
-        <ArrowLeft size={14} aria-hidden />
-        กลับรายการแมตช์
-      </Link>
-
-      {/* ── Match header ─────────────────────────────────────── */}
-      <MatchHero match={m} tags={tags ?? []} />
-
+    <div className="space-y-6">
       {/* ── Team scoreline ───────────────────────────────────── */}
       {liveDetail && (
         <MatchScoreline players={liveDetail.players} didRadiantWin={liveDetail.didRadiantWin} />
@@ -146,15 +114,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
           <DraftBans pickBans={liveDetail.pickBans} />
           <LaneMatchup players={liveDetail.players} laneOutcomes={liveDetail.laneOutcomes} />
         </div>
-      )}
-
-      {/* ── Full 10-player scoreboard ───────────────────────── */}
-      {liveDetail && (
-        <TeamScoreboard
-          players={liveDetail.players}
-          didRadiantWin={liveDetail.didRadiantWin}
-          trackedSteamAccountId={profile?.steam_account_id ?? undefined}
-        />
       )}
 
       {/* ── Item purchase order ──────────────────────────────── */}
@@ -247,95 +206,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
         </section>
       )}
     </div>
-  );
-}
-
-// ── Sub-components ────────────────────────────────────────────
-
-/**
- * Full-bleed header. The hero's own splash art sits behind the text at low
- * opacity — it identifies the match faster than any label, and it's the one
- * place in the app where a big decorative image earns its bytes.
- */
-function MatchHero({
-  match: m,
-  tags,
-}: {
-  match: Match;
-  tags: { tag: string; confidence: number }[];
-}) {
-  return (
-    <Card padded={false} accent={m.is_win ? "win" : "loss"} className="relative">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
-        <Image
-          src={heroBannerUrl(m.hero_id)}
-          alt=""
-          fill
-          className="object-cover object-top opacity-[0.13]"
-          sizes="100vw"
-          unoptimized
-          priority
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, #141414 25%, rgba(20,20,20,0.85) 55%, rgba(20,20,20,0.4))",
-          }}
-        />
-      </div>
-
-      <div className="relative flex items-start gap-4 p-4">
-        <div className="relative h-16 w-16 md:h-20 md:w-20 shrink-0 rounded-md overflow-hidden bg-bg-secondary ring-hairline">
-          <Image
-            src={heroIconUrl(m.hero_id)}
-            alt={getHeroName(m.hero_id)}
-            fill
-            className="object-cover"
-            sizes="80px"
-            unoptimized
-          />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-text-primary">{getHeroName(m.hero_id)}</h1>
-            <span
-              className={cn(
-                "text-lg font-extrabold tracking-wide",
-                m.is_win ? "text-win" : "text-loss",
-              )}
-            >
-              {m.is_win ? "VICTORY" : "DEFEAT"}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-sm text-text-secondary">
-            <span className="flex items-center gap-1.5">
-              <Clock size={13} aria-hidden />
-              {formatMatchDate(m.start_time)} · {formatDuration(m.duration_sec)}
-            </span>
-            <span className="chip">{roleLabel(m.role)}</span>
-            {m.rank_tier ? <RankBadge rankTier={m.rank_tier} /> : null}
-            <span className="font-mono text-xs text-text-muted">#{m.match_id}</span>
-          </div>
-
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {tags.map((tag) => (
-                <Badge
-                  key={tag.tag}
-                  tone="neutral"
-                  title={`ความมั่นใจ: ${Math.round(tag.confidence * 100)}%`}
-                >
-                  {tag.tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </Card>
   );
 }
 
