@@ -173,9 +173,12 @@ export default async function OverviewPage({ searchParams }: PageProps) {
       )}
 
       {/* Trend row — MMR gets the wider column; it's the one chart people
-          come back for, and a pie needs far less room to be readable. */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+          come back for, and a pie needs far less room to be readable.
+          Waits for xl (1280px): below that the sidebar is already an icon
+          rail and a laptop window has no room left to split 2:1 without
+          squeezing the chart. */}
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
           {mmrSeries.length > 0 ? (
             <MmrChart data={mmrSeries} />
           ) : (
@@ -190,14 +193,18 @@ export default async function OverviewPage({ searchParams }: PageProps) {
         </Card>
       </div>
 
-      {/* Habits row — when you play, and how the day goes as it wears on. */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SessionTracker rows={sessions} />
+      {/* Habits row — the session curve needs width to read; the calendar
+          heatmap doesn't, so it takes the narrower column instead of an
+          even split. */}
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <SessionTracker rows={sessions} />
+        </div>
         <PlayCalendar dailySummaries={dailySummaries} />
       </div>
 
-      {/* Advice row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Advice row — three peer cards, no main/rail split needed. */}
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <WeeklyFocus weaknesses={weaknesses} />
         <NextGameAdvice heroPool={heroPool} role={role === "all" ? null : role} />
         <MostPlayedHeroes heroPool={heroPool} />

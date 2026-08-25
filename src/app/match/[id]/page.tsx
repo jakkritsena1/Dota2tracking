@@ -140,12 +140,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
         />
       )}
 
-      {/* ── Draft (picks / bans) ────────────────────────────── */}
-      {liveDetail && <DraftBans pickBans={liveDetail.pickBans} />}
-
-      {/* ── Lane matchup ─────────────────────────────────────── */}
+      {/* ── Draft + lane matchup ─────────────────────────────── */}
       {liveDetail && (
-        <LaneMatchup players={liveDetail.players} laneOutcomes={liveDetail.laneOutcomes} />
+        <div className="grid gap-6 xl:grid-cols-2">
+          <DraftBans pickBans={liveDetail.pickBans} />
+          <LaneMatchup players={liveDetail.players} laneOutcomes={liveDetail.laneOutcomes} />
+        </div>
       )}
 
       {/* ── Full 10-player scoreboard ───────────────────────── */}

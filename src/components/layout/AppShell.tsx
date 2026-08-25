@@ -66,7 +66,7 @@ function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-function BrandMark({ compact = false }: { compact?: boolean }) {
+function BrandMark({ compact = false, hideLabelBelowXl = false }: { compact?: boolean; hideLabelBelowXl?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2.5 focus-ring rounded group">
       <span
@@ -77,7 +77,13 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
       >
         D2
       </span>
-      <span className={cn("brand-text leading-none", compact ? "text-sm" : "text-base")}>
+      <span
+        className={cn(
+          "brand-text leading-none",
+          compact ? "text-sm" : "text-base",
+          hideLabelBelowXl && "hidden xl:inline",
+        )}
+      >
         Dashboard
       </span>
     </Link>
@@ -196,20 +202,33 @@ export default function AppShell({
 
   return (
     <div className="flex min-h-screen">
-      {/* ── Sidebar (desktop) ─────────────────────────────────── */}
+      {/* ── Sidebar (desktop) ─────────────────────────────────────
+          Three states, not two: below md it's gone (mobile bottom nav
+          takes over); from md up to just before xl it's a 64px icon-only
+          rail, so a laptop-width window isn't stuck losing the same fixed
+          240px to a fully-labelled sidebar; at xl+ it's the full labelled
+          sidebar. All via CSS breakpoints so there's no resize-listener
+          / hydration-mismatch risk — narrow pieces (search, account) are
+          two complete variants toggled with hidden/xl:*, not one variant
+          reflowed with JS. */}
       <aside
-        className="hidden md:flex flex-col shrink-0 sticky top-0 h-screen bg-bg-secondary"
-        style={{ width: "var(--sidebar-w)", borderRight: "1px solid var(--hairline)" }}
+        className="hidden md:flex flex-col shrink-0 sticky top-0 h-screen bg-bg-secondary w-16 xl:w-[var(--sidebar-w)]"
+        style={{ borderRight: "1px solid var(--hairline)" }}
       >
-        <div className="px-3 py-4 space-y-3" style={{ borderBottom: "1px solid var(--hairline)" }}>
-          <BrandMark />
-          <SearchTrigger onClick={openPalette} />
+        <div className="px-3 py-4 flex flex-col items-center xl:items-stretch gap-3" style={{ borderBottom: "1px solid var(--hairline)" }}>
+          <BrandMark hideLabelBelowXl />
+          <div className="xl:hidden">
+            <SearchTrigger onClick={openPalette} compact />
+          </div>
+          <div className="hidden xl:block">
+            <SearchTrigger onClick={openPalette} />
+          </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4" aria-label="Main navigation">
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
-              <p className="label-xs px-2.5 mb-1.5">{group.label}</p>
+              <p className="label-xs px-2.5 mb-1.5 hidden xl:block">{group.label}</p>
               <ul className="space-y-0.5">
                 {group.items.map(({ href, label, icon: Icon }) => {
                   const active = isActive(pathname, href);
@@ -217,8 +236,10 @@ export default function AppShell({
                     <li key={href}>
                       <Link
                         href={href}
+                        title={label}
                         className={cn(
                           "relative flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all focus-ring",
+                          "justify-center xl:justify-start",
                           active
                             ? "bg-accent-teal-dim text-accent-teal"
                             : "text-text-secondary hover:text-text-primary hover:bg-bg-overlay",
@@ -234,7 +255,7 @@ export default function AppShell({
                           />
                         )}
                         <Icon size={16} aria-hidden />
-                        {label}
+                        <span className="hidden xl:inline">{label}</span>
                       </Link>
                     </li>
                   );
@@ -244,8 +265,13 @@ export default function AppShell({
           ))}
         </nav>
 
-        <div className="px-3 py-3" style={{ borderTop: "1px solid var(--hairline)" }}>
-          <AccountBlock profile={profile} />
+        <div className="px-3 py-3 flex justify-center xl:block" style={{ borderTop: "1px solid var(--hairline)" }}>
+          <div className="xl:hidden">
+            <AccountBlock profile={profile} compact />
+          </div>
+          <div className="hidden xl:block">
+            <AccountBlock profile={profile} />
+          </div>
         </div>
       </aside>
 
@@ -262,7 +288,7 @@ export default function AppShell({
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8 max-w-[90rem] w-full mx-auto">
+        <main className="flex-1 px-4 py-6 md:px-8 md:py-8 max-w-[75rem] w-full mx-auto">
           {children}
         </main>
 

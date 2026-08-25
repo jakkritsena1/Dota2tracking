@@ -61,11 +61,13 @@ export default async function HeroesPage({ searchParams }: PageProps) {
         actions={<RangeSelector currentRange="all" currentRole={role} showRange={false} />}
       />
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* HE-1: 4-quadrant scatter */}
-        <PoolScatter data={pool} />
+      <div className="grid gap-6 xl:grid-cols-3">
+        {/* HE-1: 4-quadrant scatter — a real chart, needs the room */}
+        <div className="xl:col-span-2">
+          <PoolScatter data={pool} />
+        </div>
 
-        {/* HE-2: Recommendations */}
+        {/* HE-2: Recommendations — a short ranked list, fits the rail */}
         <HeroRecommendations pool={pool} />
       </div>
 

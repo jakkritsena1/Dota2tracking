@@ -19,7 +19,13 @@
   --text-primary: #E6E6E6;
   --text-secondary: #999999;
 
-  /* Sidebar width, shared between the shell and any sticky offsets. */
+  /* Sidebar width, shared between the shell and any sticky offsets.
+     Full labelled sidebar at xl+ (1280px) only — from md up to xl it's a
+     w-16 (4rem) icon-only rail (see AppShell.tsx), so a 1024–1279px window
+     isn't stuck losing a fixed 240px to labels it has no room to show
+     comfortably. Page content itself caps at max-w-[75rem] (1200px, see
+     AppShell's <main>) — sampled from STRATZ/OP.GG/Leetify, which all sit
+     in the 1080–1300px range rather than stretching full-bleed. */
   --sidebar-w: 15rem;
 }
 

@@ -93,11 +93,13 @@ export default async function CoachPage({ searchParams }: PageProps) {
         actions={<RangeSelector currentRange={range} currentRole={role} />}
       />
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* CO-1: Radar */}
-        <RadarAxes scores={radarScores} />
+      <div className="grid gap-6 xl:grid-cols-3">
+        {/* CO-1: Radar — needs the room, so it takes the wide column */}
+        <div className="xl:col-span-2">
+          <RadarAxes scores={radarScores} />
+        </div>
 
-        {/* CO-2: Weaknesses */}
+        {/* CO-2: Weaknesses — a short ranked list, fits the rail */}
         <WeaknessCards weaknesses={weaknesses} />
       </div>
 
