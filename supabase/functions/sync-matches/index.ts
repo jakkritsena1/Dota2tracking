@@ -5,6 +5,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
+  getCurrentRankTier,
   getRecentMatches,
   mapLane,
   mapRole,
@@ -103,6 +104,26 @@ async function syncOneUser(
 
   const latestMatchId: number = latestRow?.match_id ?? 0;
 
+  // STRATZ has no per-match historical rank tier for a player — only the
+  // account's *current* season rank. Stamping that onto newly-synced
+  // matches is an approximation (the account's rank as of sync time, not
+  // as of match time), but it's a far better substitute than leaving
+  // rank_tier permanently null, which is what happened before: the
+  // Progress page's MMR trend/forecast panels were always empty regardless
+  // of match count. Fetched lazily (only once we know there's a new match
+  // to stamp) so a sync run with nothing new doesn't spend an extra STRATZ
+  // call on every user, every 15 minutes.
+  let currentRankTier: number | null | undefined;
+  const getCachedRankTier = async () => {
+    if (currentRankTier === undefined) {
+      currentRankTier = await getCurrentRankTier(cfg).catch((err) => {
+        console.error(`[sync-matches] getCurrentRankTier failed for user ${userId}:`, err);
+        return null;
+      });
+    }
+    return currentRankTier;
+  };
+
   let skip = 0;
   let done = false;
   let inserted = 0;
@@ -114,14 +135,15 @@ async function syncOneUser(
 
     if (!matches.length) break;
 
-    const rows = matches
-      .filter((m) => m.id > latestMatchId)
-      .map((m) => ({ ...toDbRow(m, cfg.steamAccountId), user_id: userId }));
+    const newMatches = matches.filter((m) => m.id > latestMatchId);
 
-    if (rows.length === 0) {
+    if (newMatches.length === 0) {
       done = true;
       break;
     }
+
+    const rankTier = await getCachedRankTier();
+    const rows = newMatches.map((m) => ({ ...toDbRow(m, cfg.steamAccountId, rankTier), user_id: userId }));
 
     const { error } = await supabase
       .from("matches")
@@ -155,7 +177,7 @@ async function syncOneUser(
 
 // ── Helpers ──────────────────────────────────────────────────
 
-function toDbRow(match: StratzMatch, steamAccountId: number) {
+function toDbRow(match: StratzMatch, steamAccountId: number, currentRankTier: number | null) {
   const me: StratzMatchPlayer | undefined = match.players?.find(
     (p) => (p as unknown as { steamAccount?: { id?: number } }).steamAccount?.id === steamAccountId,
   ) ?? match.players?.[0];
@@ -188,7 +210,7 @@ function toDbRow(match: StratzMatch, steamAccountId: number) {
     imp: me.imp,
     cs_at_10: csAt10,
     lane_outcome: null, // computed by tag-matches
-    rank_tier: null, // STRATZ doesn't return per-match rank tier directly
+    rank_tier: currentRankTier, // approximation — see comment in syncOneUser
     raw: me.stats ?? null,
   };
 }

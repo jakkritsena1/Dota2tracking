@@ -199,6 +199,11 @@ export async function getPlayerProfile(
   return data.player?.steamAccount ?? null;
 }
 
+export async function getCurrentRankTier(cfg: StratzConfig): Promise<number | null> {
+  const profile = await getPlayerProfile(cfg);
+  return profile?.seasonRank ?? null;
+}
+
 export async function getRecentMatches(
   cfg: StratzConfig,
   take = 50,
