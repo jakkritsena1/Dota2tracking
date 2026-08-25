@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { GitCompareArrows } from "lucide-react";
 import type { HeroPoolWithMetaRow } from "@/types/database";
 import { heroIconUrl, HEROES } from "@/lib/hero-data";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   heroes: HeroPoolWithMetaRow[];
@@ -21,22 +23,23 @@ export function PatchImpact({ heroes, previousMeta }: Props) {
 
   if (withDelta.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">Patch Impact</h2>
+      <Card>
+        <CardHeader title="Patch Impact" icon={<GitCompareArrows size={14} />} />
         <p className="text-text-secondary text-sm mt-4">
           ยังไม่มีข้อมูลเปรียบเทียบ patch — ต้องการข้อมูล 2 วันขึ้นไป
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="card">
-      <h2 className="section-title">Patch Impact</h2>
-      <p className="text-xs text-text-secondary mt-1 mb-4">
-        ฮีโร่ในพูลที่ meta WR เปลี่ยน ≥2pp จากวันก่อน
-      </p>
-      <div className="space-y-2">
+    <Card>
+      <CardHeader
+        title="Patch Impact"
+        icon={<GitCompareArrows size={14} />}
+        subtitle="ฮีโร่ในพูลที่ meta WR เปลี่ยน ≥2pp จากวันก่อน"
+      />
+      <div className="space-y-2 mt-4">
         {withDelta.map(h => {
           const heroName = HEROES[h.hero_id]?.displayName ?? `Hero ${h.hero_id}`;
           const buffed = h.delta > 0;
@@ -69,6 +72,6 @@ export function PatchImpact({ heroes, previousMeta }: Props) {
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

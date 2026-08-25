@@ -1,10 +1,12 @@
 "use client";
 
+import { Target } from "lucide-react";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, ResponsiveContainer, Tooltip,
 } from "recharts";
 import type { RadarScoreRow } from "@/types/database";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   scores: RadarScoreRow[];
@@ -25,7 +27,7 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payl
   return (
     <div className="card text-xs space-y-1" style={{ minWidth: 140 }}>
       <p className="font-medium">{AXIS_LABELS[d.axis] ?? d.axis}</p>
-      <p>คะแนน: <span className="text-accent-blue font-bold">{d.score}/100</span></p>
+      <p>คะแนน: <span className="text-accent-teal font-bold">{d.score}/100</span></p>
       {d.my_avg != null && <p>ค่าเฉลี่ยของฉัน: {d.my_avg}</p>}
       {d.p50_value != null && <p>Median bracket: {d.p50_value}</p>}
       {d.sample_size > 0 && <p className="text-text-secondary">{d.sample_size} เกม</p>}
@@ -36,10 +38,10 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payl
 export function RadarAxes({ scores }: Props) {
   if (scores.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">ทักษะทั้ง 6 ด้าน</h2>
+      <Card>
+        <CardHeader title="ทักษะทั้ง 6 ด้าน" icon={<Target size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ยังไม่มีข้อมูลเพียงพอ</p>
-      </div>
+      </Card>
     );
   }
 
@@ -50,8 +52,8 @@ export function RadarAxes({ scores }: Props) {
   }));
 
   return (
-    <div className="card">
-      <h2 className="section-title">ทักษะทั้ง 6 ด้าน</h2>
+    <Card>
+      <CardHeader title="ทักษะทั้ง 6 ด้าน" icon={<Target size={14} />} />
       <div className="h-72 mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} margin={{ top: 16, right: 24, bottom: 16, left: 24 }}>
@@ -103,6 +105,6 @@ export function RadarAxes({ scores }: Props) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -5,8 +5,10 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Cell,
 } from "recharts";
+import { ScatterChart as ScatterChartIcon } from "lucide-react";
 import type { HeroPoolWithMetaRow } from "@/types/database";
 import { HEROES } from "@/lib/hero-data";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   data: HeroPoolWithMetaRow[];
@@ -22,7 +24,7 @@ const CustomTooltip = ({ active, payload }: {
     <div className="card text-xs space-y-1" style={{ minWidth: 160 }}>
       <p className="font-medium text-text-primary">{d.heroName}</p>
       <p>Player WR: <span className={d.player_wr >= 0.5 ? "text-win" : "text-loss"}>{(d.player_wr * 100).toFixed(1)}%</span></p>
-      {d.meta_wr != null && <p>Meta WR: <span className="text-accent-blue">{(d.meta_wr * 100).toFixed(1)}%</span></p>}
+      {d.meta_wr != null && <p>Meta WR: <span className="text-accent-teal">{(d.meta_wr * 100).toFixed(1)}%</span></p>}
       <p className="text-text-secondary">{d.games} เกม · {d.role}</p>
     </div>
   );
@@ -49,20 +51,21 @@ export function PoolScatter({ data }: Props) {
 
   if (chartData.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">Hero Pool Map</h2>
+      <Card>
+        <CardHeader title="Hero Pool Map" icon={<ScatterChartIcon size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ยังไม่มีข้อมูลฮีโร่</p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="card">
-      <h2 className="section-title">Hero Pool Map</h2>
-      <p className="text-xs text-text-secondary mt-1 mb-4">
-        แกน X = Win rate ของฉัน · แกน Y = Meta win rate · ขนาดจุด = จำนวนเกม
-      </p>
-      <div className="h-72">
+    <Card>
+      <CardHeader
+        title="Hero Pool Map"
+        icon={<ScatterChartIcon size={14} />}
+        subtitle="แกน X = Win rate ของฉัน · แกน Y = Meta win rate · ขนาดจุด = จำนวนเกม"
+      />
+      <div className="h-72 mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 4, right: 16, bottom: 16, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
@@ -105,6 +108,6 @@ export function PoolScatter({ data }: Props) {
         <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-accent-orange inline-block" />เมต้าดี แต่ยังไม่ถนัด</div>
         <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-loss inline-block" />หลีกเลี่ยง</div>
       </div>
-    </div>
+    </Card>
   );
 }

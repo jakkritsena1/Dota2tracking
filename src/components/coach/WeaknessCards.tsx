@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import type { Weakness } from "@/types/database";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   weaknesses: Weakness[];
@@ -32,22 +34,23 @@ function ImpactBar({ value }: { value: number }) {
 export function WeaknessCards({ weaknesses }: Props) {
   if (weaknesses.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">จุดอ่อนสำคัญ</h2>
+      <Card>
+        <CardHeader title="จุดอ่อนสำคัญ" icon={<AlertTriangle size={14} />} />
         <p className="text-text-secondary text-sm mt-4">
           ต้องการเกมอย่างน้อย 20 เกมเพื่อวิเคราะห์จุดอ่อน
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="card">
-      <h2 className="section-title">จุดอ่อนสำคัญ</h2>
-      <p className="text-xs text-text-secondary mt-1 mb-4">
-        เรียงตามผลกระทบต่อ win rate — แก้จุดแรกก่อน
-      </p>
-      <div className="space-y-4">
+    <Card>
+      <CardHeader
+        title="จุดอ่อนสำคัญ"
+        icon={<AlertTriangle size={14} />}
+        subtitle="เรียงตามผลกระทบต่อ win rate — แก้จุดแรกก่อน"
+      />
+      <div className="space-y-4 mt-4">
         {weaknesses.map((w, i) => {
           const cfg = METRIC_CONFIG[w.metric] ?? { label: w.metric, description: "", unit: "" };
           const delta = w.est_delta_winrate ?? 0;
@@ -98,6 +101,6 @@ export function WeaknessCards({ weaknesses }: Props) {
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

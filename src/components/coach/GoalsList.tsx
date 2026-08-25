@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ListChecks } from "lucide-react";
 import type { GoalProgressRow } from "@/types/database";
 import { formatRelative } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   goals: GoalProgressRow[];
@@ -179,28 +181,33 @@ export function GoalsList({ goals }: Props) {
   }
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="section-title">เป้าหมาย</h2>
-        <button
-          onClick={() => setShowForm(v => !v)}
-          className="text-xs text-accent-teal hover:underline"
-        >
-          {showForm ? "ยกเลิก" : "+ ตั้งเป้าหมาย"}
-        </button>
+    <Card>
+      <CardHeader
+        title="เป้าหมาย"
+        icon={<ListChecks size={14} />}
+        action={
+          <button
+            onClick={() => setShowForm(v => !v)}
+            className="text-xs text-accent-teal hover:underline"
+          >
+            {showForm ? "ยกเลิก" : "+ ตั้งเป้าหมาย"}
+          </button>
+        }
+      />
+
+      <div className="mt-4">
+        {showForm && <div className="mb-4"><AddGoalForm onSuccess={refresh} /></div>}
+
+        {goals.length === 0 && !showForm ? (
+          <p className="text-text-secondary text-sm">ยังไม่มีเป้าหมาย — กดปุ่ม + เพื่อเพิ่ม</p>
+        ) : (
+          <div className="space-y-3">
+            {goals.map(g => (
+              <GoalRow key={g.goal_id} goal={g} onUpdate={refresh} />
+            ))}
+          </div>
+        )}
       </div>
-
-      {showForm && <div className="mb-4"><AddGoalForm onSuccess={refresh} /></div>}
-
-      {goals.length === 0 && !showForm ? (
-        <p className="text-text-secondary text-sm">ยังไม่มีเป้าหมาย — กดปุ่ม + เพื่อเพิ่ม</p>
-      ) : (
-        <div className="space-y-3">
-          {goals.map(g => (
-            <GoalRow key={g.goal_id} goal={g} onUpdate={refresh} />
-          ))}
-        </div>
-      )}
-    </div>
+    </Card>
   );
 }

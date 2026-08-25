@@ -1,11 +1,13 @@
 "use client";
 
+import { TrendingUp } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Legend,
 } from "recharts";
 import type { MmrSeriesRow, MmrForecastRow } from "@/types/database";
 import { rankTierToName } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   series: MmrSeriesRow[];
@@ -34,10 +36,10 @@ function buildForecastPoints(series: MmrSeriesRow[], f: MmrForecastRow) {
 export function MmrForecast({ series, forecast }: Props) {
   if (series.length < 5) {
     return (
-      <div className="card">
-        <h2 className="section-title">แนวโน้ม MMR</h2>
+      <Card>
+        <CardHeader title="แนวโน้ม MMR" icon={<TrendingUp size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ต้องการเกมอย่างน้อย 5 เกมในช่วงนี้</p>
-      </div>
+      </Card>
     );
   }
 
@@ -52,31 +54,32 @@ export function MmrForecast({ series, forecast }: Props) {
   const nextRankName = forecast?.next_rank_tier ? rankTierToName(forecast.next_rank_tier) : null;
   const weeksEst = forecast?.estimated_weeks;
 
-  return (
-    <div className="card">
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-        <div>
-          <h2 className="section-title">แนวโน้ม MMR</h2>
-          {forecast && (
-            <p className="text-sm text-text-secondary mt-1">
-              {forecast.slope_per_week != null && forecast.slope_per_week > 0
-                ? `+${forecast.slope_per_week} rank tier / สัปดาห์`
-                : forecast.slope_per_week != null
-                ? `${forecast.slope_per_week} rank tier / สัปดาห์`
-                : "ไม่มีแนวโน้มชัดเจน"}
-            </p>
-          )}
-        </div>
-        {weeksEst != null && nextRankName && (
-          <div className="text-right">
-            <p className="text-xs text-text-secondary">คาดถึง</p>
-            <p className="text-sm font-semibold text-accent-teal">{nextRankName}</p>
-            <p className="text-xs text-text-secondary">ใน ~{weeksEst} สัปดาห์</p>
-          </div>
-        )}
-      </div>
+  const slopeSubtitle = forecast
+    ? forecast.slope_per_week != null && forecast.slope_per_week > 0
+      ? `+${forecast.slope_per_week} rank tier / สัปดาห์`
+      : forecast.slope_per_week != null
+      ? `${forecast.slope_per_week} rank tier / สัปดาห์`
+      : "ไม่มีแนวโน้มชัดเจน"
+    : undefined;
 
-      <div className="h-56">
+  return (
+    <Card>
+      <CardHeader
+        title="แนวโน้ม MMR"
+        icon={<TrendingUp size={14} />}
+        subtitle={slopeSubtitle}
+        action={
+          weeksEst != null && nextRankName ? (
+            <div className="text-right">
+              <p className="text-xs text-text-secondary">คาดถึง</p>
+              <p className="text-sm font-semibold text-accent-teal">{nextRankName}</p>
+              <p className="text-xs text-text-secondary">ใน ~{weeksEst} สัปดาห์</p>
+            </div>
+          ) : undefined
+        }
+      />
+
+      <div className="h-56 mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
@@ -146,6 +149,6 @@ export function MmrForecast({ series, forecast }: Props) {
       <p className="text-[10px] text-text-secondary mt-2">
         คำนวณจาก {forecast?.sample_size ?? 0} เกมล่าสุด · Linear regression บน rank_tier × เวลา
       </p>
-    </div>
+    </Card>
   );
 }

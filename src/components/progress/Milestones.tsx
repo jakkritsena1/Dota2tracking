@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Award } from "lucide-react";
 import type { PersonalBestRow } from "@/types/database";
 import { formatMatchDate } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   bests: PersonalBestRow[];
@@ -44,16 +46,16 @@ function formatValue(metric: string, value: number): string {
 export function Milestones({ bests }: Props) {
   if (bests.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">Personal Bests</h2>
+      <Card>
+        <CardHeader title="Personal Bests" icon={<Award size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ยังไม่มีข้อมูล</p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="card">
-      <h2 className="section-title">Personal Bests</h2>
+    <Card>
+      <CardHeader title="Personal Bests" icon={<Award size={14} />} />
       <ul className="mt-4 divide-y divide-border">
         {bests.map(b => {
           const cfg = METRIC_CONFIG[b.metric];
@@ -87,6 +89,6 @@ export function Milestones({ bests }: Props) {
           );
         })}
       </ul>
-    </div>
+    </Card>
   );
 }

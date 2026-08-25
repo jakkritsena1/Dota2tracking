@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import type { HeroPoolWithMetaRow } from "@/types/database";
 import { heroIconUrl, HEROES } from "@/lib/hero-data";
 import { cosineSimilarity } from "@/lib/statistics";
 import { styleVector, playerStyleVector } from "@/lib/hero-properties";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   pool: HeroPoolWithMetaRow[];
@@ -34,10 +36,10 @@ function computeScore(h: HeroPoolWithMetaRow, playerVec: number[]): ScoredHero {
 export function HeroRecommendations({ pool }: Props) {
   if (pool.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">ฮีโร่แนะนำ</h2>
+      <Card>
+        <CardHeader title="ฮีโร่แนะนำ" icon={<Sparkles size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ยังไม่มีข้อมูลฮีโร่</p>
-      </div>
+      </Card>
     );
   }
 
@@ -51,12 +53,13 @@ export function HeroRecommendations({ pool }: Props) {
     .slice(0, 5);
 
   return (
-    <div className="card">
-      <h2 className="section-title">ฮีโร่แนะนำ</h2>
-      <p className="text-xs text-text-secondary mt-1 mb-4">
-        คำนวณจาก WR, Meta strength และ style fit
-      </p>
-      <div className="space-y-3">
+    <Card>
+      <CardHeader
+        title="ฮีโร่แนะนำ"
+        icon={<Sparkles size={14} />}
+        subtitle="คำนวณจาก WR, Meta strength และ style fit"
+      />
+      <div className="space-y-3 mt-4">
         {scored.map((h, i) => {
           const heroName = HEROES[h.hero_id]?.displayName ?? `Hero ${h.hero_id}`;
           return (
@@ -93,6 +96,6 @@ export function HeroRecommendations({ pool }: Props) {
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

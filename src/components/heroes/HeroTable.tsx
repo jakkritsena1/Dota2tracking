@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Table2 } from "lucide-react";
 import type { HeroPoolWithMetaRow } from "@/types/database";
 import { heroIconUrl, HEROES } from "@/lib/hero-data";
 import { formatMatchDate } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   heroes: HeroPoolWithMetaRow[];
@@ -52,18 +54,21 @@ export function HeroTable({ heroes }: Props) {
   }
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-        <h2 className="section-title">ฮีโร่ทั้งหมด</h2>
-        <select
-          className="bg-bg-hover border border-border rounded-md px-2 py-1 text-sm text-text-primary focus:outline-none"
-          value={roleFilter}
-          onChange={e => setRoleFilter(e.target.value)}
-        >
-          <option value="all">ทุกบทบาท</option>
-          {roles.map(r => <option key={r} value={r}>{r}</option>)}
-        </select>
-      </div>
+    <Card padded={false}>
+      <CardHeader
+        title="ฮีโร่ทั้งหมด"
+        icon={<Table2 size={14} />}
+        action={
+          <select
+            className="bg-bg-hover border border-border rounded-md px-2 py-1 text-sm text-text-primary focus:outline-none"
+            value={roleFilter}
+            onChange={e => setRoleFilter(e.target.value)}
+          >
+            <option value="all">ทุกบทบาท</option>
+            {roles.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        }
+      />
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -122,6 +127,6 @@ export function HeroTable({ heroes }: Props) {
           <p className="text-center text-text-secondary text-sm py-8">ไม่มีข้อมูล</p>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

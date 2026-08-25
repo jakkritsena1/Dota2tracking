@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Percent, Swords, Coins, Trophy, LineChart, List } from "lucide-react";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
 import { heroIconUrl, heroBannerUrl, HEROES } from "@/lib/hero-data";
 import { rankTierToName, formatMatchDate, formatKDA } from "@/lib/utils";
 import type { Match, HeroMetaDaily } from "@/types/database";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { StatTile } from "@/components/ui/StatTile";
+import { ResultBadge } from "@/components/ui/Badge";
 
 export const revalidate = 300;
 
@@ -113,23 +117,34 @@ export default async function HeroDetailPage({ params }: PageProps) {
 
       {/* Stats summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Win Rate", value: `${(wr * 100).toFixed(1)}%`, color: wr >= 0.5 ? "text-win" : "text-loss" },
-          { label: "KDA เฉลี่ย", value: formatKDA(avgKills, avgDeaths, avgAssists), color: "text-text-primary" },
-          { label: "GPM เฉลี่ย", value: Math.round(avgGpm).toString(), color: "text-text-primary" },
-          { label: "IMP เฉลี่ย", value: avgImp.toFixed(1), color: "text-accent-teal" },
-        ].map(s => (
-          <div key={s.label} className="card text-center">
-            <p className="text-xs text-text-secondary mb-1">{s.label}</p>
-            <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
+        <StatTile
+          label="Win Rate"
+          value={`${(wr * 100).toFixed(1)}%`}
+          tone={wr >= 0.5 ? "win" : "loss"}
+          icon={<Percent size={12} />}
+        />
+        <StatTile
+          label="KDA เฉลี่ย"
+          value={formatKDA(avgKills, avgDeaths, avgAssists)}
+          icon={<Swords size={12} />}
+        />
+        <StatTile
+          label="GPM เฉลี่ย"
+          value={Math.round(avgGpm)}
+          icon={<Coins size={12} />}
+        />
+        <StatTile
+          label="IMP เฉลี่ย"
+          value={avgImp.toFixed(1)}
+          tone="teal"
+          icon={<Trophy size={12} />}
+        />
       </div>
 
       {/* Meta data */}
       {legendMeta && (
-        <div className="card">
-          <h2 className="section-title">Meta (Legend)</h2>
+        <Card>
+          <CardHeader title="Meta (Legend)" icon={<Percent size={14} />} />
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div>
               <p className="text-xs text-text-secondary">Meta WR</p>
@@ -148,15 +163,18 @@ export default async function HeroDetailPage({ params }: PageProps) {
               <p className="text-lg font-bold text-text-primary">{legendMeta.patch ?? "—"}</p>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* HE-5: Learning curve */}
       {curve.length > 1 && (
-        <div className="card">
-          <h2 className="section-title">Learning Curve</h2>
-          <p className="text-xs text-text-secondary mt-1 mb-4">Win rate ตามช่วงเกม (เก่า → ใหม่)</p>
-          <div className="flex gap-4 items-end h-24">
+        <Card>
+          <CardHeader
+            title="Learning Curve"
+            icon={<LineChart size={14} />}
+            subtitle="Win rate ตามช่วงเกม (เก่า → ใหม่)"
+          />
+          <div className="flex gap-4 items-end h-24 mt-4">
             {curve.map(c => (
               <div key={c.range} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full flex items-end justify-center">
@@ -172,12 +190,12 @@ export default async function HeroDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Recent matches */}
-      <div className="card">
-        <h2 className="section-title">เกมล่าสุด</h2>
+      <Card>
+        <CardHeader title="เกมล่าสุด" icon={<List size={14} />} />
         <div className="overflow-x-auto mt-4">
           <table className="w-full text-sm">
             <thead className="text-xs text-text-secondary border-b border-border">
@@ -199,9 +217,7 @@ export default async function HeroDetailPage({ params }: PageProps) {
                     </Link>
                   </td>
                   <td className="py-2 pr-4">
-                    <span className={`badge ${m.is_win ? "badge-win" : "badge-loss"}`}>
-                      {m.is_win ? "W" : "L"}
-                    </span>
+                    <ResultBadge isWin={m.is_win} compact />
                   </td>
                   <td className="py-2 pr-4 text-right text-text-secondary">
                     {m.kills}/{m.deaths}/{m.assists}
@@ -218,7 +234,7 @@ export default async function HeroDetailPage({ params }: PageProps) {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

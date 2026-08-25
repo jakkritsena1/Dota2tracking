@@ -1,10 +1,12 @@
 "use client";
 
+import { Users } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { rankTierToName } from "@/lib/utils";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface RolePoint {
   date: string;
@@ -27,18 +29,18 @@ const ROLE_COLORS: Record<string, string> = {
 export function RoleMmrLines({ data, roles }: Props) {
   if (data.length === 0 || roles.length === 0) {
     return (
-      <div className="card">
-        <h2 className="section-title">MMR แยกตามบทบาท</h2>
+      <Card>
+        <CardHeader title="MMR แยกตามบทบาท" icon={<Users size={14} />} />
         <p className="text-text-secondary text-sm mt-4">
           ต้องการอย่างน้อย 20 เกมต่อบทบาทเพื่อแสดงกราฟ
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="card">
-      <h2 className="section-title">MMR แยกตามบทบาท</h2>
+    <Card>
+      <CardHeader title="MMR แยกตามบทบาท" icon={<Users size={14} />} />
       <div className="h-56 mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
@@ -71,6 +73,6 @@ export function RoleMmrLines({ data, roles }: Props) {
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </Card>
   );
 }

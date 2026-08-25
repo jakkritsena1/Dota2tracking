@@ -1,4 +1,6 @@
+import { Flame } from "lucide-react";
 import type { StreakStats } from "@/types/database";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   stats: StreakStats | null;
@@ -32,10 +34,10 @@ function ProbBar({ pct, label, color }: { pct: number; label: string; color: str
 export function StreakStatsCard({ stats }: Props) {
   if (!stats) {
     return (
-      <div className="card">
-        <h2 className="section-title">ความเสี่ยง Tilt</h2>
+      <Card>
+        <CardHeader title="ความเสี่ยง Tilt" icon={<Flame size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ยังไม่มีข้อมูลเพียงพอ</p>
-      </div>
+      </Card>
     );
   }
 
@@ -44,15 +46,14 @@ export function StreakStatsCard({ stats }: Props) {
   const isTilted = tiltFactor > 1.2 && sample_size_streak >= 10;
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="section-title">ความเสี่ยง Tilt</h2>
-        {isTilted && (
-          <span className="badge-loss">⚠️ Tilt Risk</span>
-        )}
-      </div>
+    <Card>
+      <CardHeader
+        title="ความเสี่ยง Tilt"
+        icon={<Flame size={14} />}
+        action={isTilted ? <span className="badge-loss">⚠️ Tilt Risk</span> : undefined}
+      />
 
-      <div className="space-y-4">
+      <div className="space-y-4 mt-4">
         <ProbBar
           pct={p_loss_overall}
           label={`โอกาสแพ้ทั่วไป (n=${sample_size_overall})`}
@@ -75,6 +76,6 @@ export function StreakStatsCard({ stats }: Props) {
           "สถิติ Tilt ปกติ — แพ้ 2 เกมติดไม่ได้เพิ่มโอกาสแพ้อย่างมีนัย"
         )}
       </div>
-    </div>
+    </Card>
   );
 }

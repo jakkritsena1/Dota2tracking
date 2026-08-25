@@ -1,5 +1,6 @@
 "use client";
 
+import { Activity } from "lucide-react";
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
@@ -7,6 +8,7 @@ import {
 import type { WeeklyImpVsMmrRow } from "@/types/database";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 interface Props {
   data: WeeklyImpVsMmrRow[];
@@ -18,7 +20,7 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payl
   return (
     <div className="card text-xs space-y-1" style={{ minWidth: 140 }}>
       <p className="text-text-secondary">{format(new Date(d.week_start), "d MMM", { locale: th })}</p>
-      <p>IMP: <span className="text-accent-blue font-medium">{d.avg_imp?.toFixed(1)}</span></p>
+      <p>IMP: <span className="text-accent-teal font-medium">{d.avg_imp?.toFixed(1)}</span></p>
       <p>MMR change: <span className={d.mmr_delta >= 0 ? "text-win" : "text-loss"}>{d.mmr_delta >= 0 ? "+" : ""}{d.mmr_delta}</span></p>
       <p className="text-text-secondary">{d.games} เกม</p>
     </div>
@@ -28,10 +30,10 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payl
 export function ImpVsMmrChart({ data }: Props) {
   if (data.length < 3) {
     return (
-      <div className="card">
-        <h2 className="section-title">IMP vs MMR</h2>
+      <Card>
+        <CardHeader title="IMP vs MMR" icon={<Activity size={14} />} />
         <p className="text-text-secondary text-sm mt-4">ต้องการข้อมูลอย่างน้อย 3 สัปดาห์</p>
-      </div>
+      </Card>
     );
   }
 
@@ -43,12 +45,13 @@ export function ImpVsMmrChart({ data }: Props) {
   const avgImp = chartData.reduce((a, d) => a + (d.avg_imp ?? 0), 0) / chartData.length;
 
   return (
-    <div className="card">
-      <h2 className="section-title">IMP vs MMR รายสัปดาห์</h2>
-      <p className="text-xs text-text-secondary mt-1 mb-4">
-        แกน X = Impact เฉลี่ย · แกน Y = MMR เปลี่ยนแปลง (rank tier delta)
-      </p>
-      <div className="h-56">
+    <Card>
+      <CardHeader
+        title="IMP vs MMR รายสัปดาห์"
+        icon={<Activity size={14} />}
+        subtitle="แกน X = Impact เฉลี่ย · แกน Y = MMR เปลี่ยนแปลง (rank tier delta)"
+      />
+      <div className="h-56 mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
@@ -82,6 +85,6 @@ export function ImpVsMmrChart({ data }: Props) {
       <p className="text-[10px] text-text-secondary mt-2">
         จุดแต่ละจุด = 1 สัปดาห์ · เส้นแนวตั้ง = IMP เฉลี่ย
       </p>
-    </div>
+    </Card>
   );
 }
