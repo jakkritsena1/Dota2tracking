@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { getServerSupabaseForUser } from "@/lib/supabase/server-user";
 import MatchHero from "@/components/match/MatchHero";
 import MatchTabs from "@/components/match/MatchTabs";
+import WinConfetti from "@/components/match/WinConfetti";
 import type { Match } from "@/types/database";
 
 interface LayoutProps {
@@ -44,6 +45,8 @@ export default async function MatchDetailLayout({ children, params }: LayoutProp
         <ArrowLeft size={14} aria-hidden />
         กลับรายการแมตช์
       </Link>
+
+      {m.is_win && <WinConfetti />}
 
       <MatchHero match={m} tags={tags ?? []} />
 

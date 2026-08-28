@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { LineChart } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCompact } from "@/lib/utils";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
@@ -18,6 +18,8 @@ export default function TeamNetWorthChart({
   radiantExperienceLeads,
 }: TeamNetWorthChartProps) {
   const [metric, setMetric] = useState<Metric>("networth");
+  const [hover, setHover] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const hasXp = radiantExperienceLeads.length > 1;
 
   const data = metric === "xp" && hasXp ? radiantExperienceLeads : radiantNetworthLeads;
@@ -30,6 +32,14 @@ export default function TeamNetWorthChart({
 
   const scaleY = (v: number) => midY - (v / max) * (midY - 8);
   const scaleX = (i: number) => (i / (data.length - 1)) * width;
+
+  function handleMove(e: React.MouseEvent<SVGSVGElement>) {
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const relX = ((e.clientX - rect.left) / rect.width) * width;
+    const i = Math.round((relX / width) * (data.length - 1));
+    setHover(i >= 0 && i < data.length ? i : null);
+  }
 
   // Split into positive/negative area paths so the fill flips color at
   // each zero-crossing, plus a single continuous stroke line on top.
@@ -71,7 +81,15 @@ export default function TeamNetWorthChart({
       />
       <div className="p-4">
         <div className="scroll-x">
-          <svg width={width} height={height + 20} aria-label="กราฟเทียบสองทีม" role="img">
+          <svg
+            ref={svgRef}
+            width={width}
+            height={height + 20}
+            aria-label="กราฟเทียบสองทีม"
+            role="img"
+            onMouseMove={handleMove}
+            onMouseLeave={() => setHover(null)}
+          >
             <defs>
               <linearGradient id="nw-win-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#2ACB4F" stopOpacity="0.55" />
@@ -116,7 +134,49 @@ export default function TeamNetWorthChart({
                 {min}m
               </text>
             ))}
+
+            {hover !== null && (
+              <g pointerEvents="none">
+                <line
+                  x1={scaleX(hover)}
+                  x2={scaleX(hover)}
+                  y1={0}
+                  y2={height}
+                  stroke="rgba(255,255,255,0.25)"
+                  strokeWidth={1}
+                  vectorEffect="non-scaling-stroke"
+                />
+                <circle
+                  cx={scaleX(hover)}
+                  cy={scaleY(data[hover])}
+                  r={4}
+                  fill={data[hover] >= 0 ? "#2ACB4F" : "#EC041F"}
+                  stroke="#0A0A0A"
+                  strokeWidth={1.5}
+                />
+              </g>
+            )}
           </svg>
+        </div>
+
+        <div className="flex items-center justify-between mt-1.5 text-xs h-4">
+          {hover !== null ? (
+            <span className="text-text-muted">
+              นาที <span className="font-mono tabular-nums text-text-secondary">{hover}</span> ·{" "}
+              {data[hover] >= 0 ? "Radiant" : "Dire"} นำ{" "}
+              <span
+                className={cn(
+                  "font-mono tabular-nums",
+                  data[hover] >= 0 ? "text-win" : "text-loss",
+                )}
+              >
+                {formatCompact(Math.abs(data[hover]))}
+              </span>{" "}
+              {unit}
+            </span>
+          ) : (
+            <span className="text-text-muted">เลื่อนเมาส์บนกราฟเพื่อดูค่าตามนาที</span>
+          )}
         </div>
       </div>
     </Card>

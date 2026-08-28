@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { RankBadge } from "@/components/ui/Badge";
 import CommandPalette, { useCommandPaletteHotkey } from "./CommandPalette";
+import PageTransition from "./PageTransition";
 
 // Rebuilt to match stratz.com's real top nav, measured directly (not
 // guessed) on 2026-08-25 at 1440px:
@@ -310,7 +311,7 @@ export default function AppShell({
       </header>
 
       <main className="flex-1 px-4 py-6 md:px-8 md:py-8 max-w-[75rem] w-full mx-auto">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />

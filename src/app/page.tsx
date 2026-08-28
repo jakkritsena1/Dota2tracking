@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/Card";
 import { RangeSelector } from "@/components/shared/RangeSelector";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { KpiCardSkeleton } from "@/components/shared/SkeletonCard";
+import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import type {
   SummaryRow,
   MmrSeriesRow,
@@ -150,34 +151,38 @@ export default async function OverviewPage({ searchParams }: PageProps) {
   const sessions = (sessionData as SessionWinrateRow[] | null) ?? [];
 
   return (
-    <div className="space-y-6 md:space-y-8 stagger">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="space-y-6 md:space-y-8">
+      <ScrollReveal className="flex flex-wrap items-end justify-between gap-4">
         <Suspense fallback={<div className="skeleton h-16 w-64" />}>
           <OverviewHeader lastSyncedAt={lastSync?.finished_at ?? null} />
         </Suspense>
         <RangeSelector currentRange={range} currentRole={role} />
-      </div>
+      </ScrollReveal>
 
-      <FormBar matches={form10 as Parameters<typeof FormBar>[0]["matches"]} />
+      <ScrollReveal delay={0.05}>
+        <FormBar matches={form10 as Parameters<typeof FormBar>[0]["matches"]} />
+      </ScrollReveal>
 
-      {summary ? (
-        <KpiCards
-          summary={summary}
-          totalGames={Number(summary.total_games ?? 0)}
-          recent={form10 as Parameters<typeof KpiCards>[0]["recent"]}
-        />
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[0,1,2,3].map(i => <KpiCardSkeleton key={i} />)}
-        </div>
-      )}
+      <ScrollReveal delay={0.1}>
+        {summary ? (
+          <KpiCards
+            summary={summary}
+            totalGames={Number(summary.total_games ?? 0)}
+            recent={form10 as Parameters<typeof KpiCards>[0]["recent"]}
+          />
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[0,1,2,3].map(i => <KpiCardSkeleton key={i} />)}
+          </div>
+        )}
+      </ScrollReveal>
 
       {/* Trend row — MMR gets the wider column; it's the one chart people
           come back for, and a pie needs far less room to be readable.
           796fr/380fr and the 1232px trigger are stratz.com's own measured
           main/rail split and breakpoint (binary-searched live, not
           guessed) — see the note in globals.css. */}
-      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
+      <ScrollReveal className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
         <Card>
           {mmrSeries.length > 0 ? (
             <MmrChart data={mmrSeries} />
@@ -191,24 +196,26 @@ export default async function OverviewPage({ searchParams }: PageProps) {
         <Card>
           <RolePieChart data={rolePieData} />
         </Card>
-      </div>
+      </ScrollReveal>
 
       {/* Habits row — the session curve needs width to read; the calendar
           heatmap doesn't, so it takes the narrower column instead of an
           even split. */}
-      <div className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
+      <ScrollReveal className="grid gap-6 min-[1232px]:grid-cols-[796fr_380fr]">
         <SessionTracker rows={sessions} />
         <PlayCalendar dailySummaries={dailySummaries} />
-      </div>
+      </ScrollReveal>
 
       {/* Advice row — three peer cards, no main/rail split needed. */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <ScrollReveal className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <WeeklyFocus weaknesses={weaknesses} />
         <NextGameAdvice heroPool={heroPool} role={role === "all" ? null : role} />
         <MostPlayedHeroes heroPool={heroPool} />
-      </div>
+      </ScrollReveal>
 
-      <MatchTable matches={(recentMatches ?? []) as Parameters<typeof MatchTable>[0]["matches"]} />
+      <ScrollReveal>
+        <MatchTable matches={(recentMatches ?? []) as Parameters<typeof MatchTable>[0]["matches"]} />
+      </ScrollReveal>
     </div>
   );
 }
