@@ -90,13 +90,13 @@ function PlayerSkillRow({ player, sideLabel }: { player: LiveMatchPlayer; sideLa
                 style={{ animationDelay: `${Math.min(i * 25, 500)}ms`, animationFillMode: "both" }}
               >
                 {s.isTalent ? (
-                  <div className="flex items-center justify-center h-7 w-7 rounded-sm bg-accent-purple/15 border border-accent-purple/40 transition-transform hover:scale-110 hover:z-10">
-                    <Star size={14} className="text-accent-purple" fill="currentColor" />
+                  <div className="flex items-center justify-center h-6 w-6 rounded-sm bg-accent-purple/15 border border-accent-purple/40 transition-transform hover:scale-110 hover:z-10">
+                    <Star size={12} className="text-accent-purple" fill="currentColor" />
                   </div>
                 ) : (
                   <div
                     className={cn(
-                      "relative h-7 w-7 rounded-sm overflow-hidden bg-bg-secondary border transition-transform hover:scale-110 hover:z-10",
+                      "relative h-6 w-6 rounded-sm overflow-hidden bg-bg-secondary border transition-transform hover:scale-110 hover:z-10",
                       s.isMaxLevel ? "border-accent-gold" : "border-border/50",
                     )}
                   >
@@ -105,14 +105,11 @@ function PlayerSkillRow({ player, sideLabel }: { player: LiveMatchPlayer; sideLa
                       alt={s.displayName}
                       fill
                       className="object-cover"
-                      sizes="28px"
+                      sizes="24px"
                       unoptimized
                     />
                   </div>
                 )}
-                <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-bg-card border border-border text-[8px] font-bold text-text-secondary">
-                  {s.levelObtained}
-                </span>
               </div>
             </Tooltip>
           ))}
