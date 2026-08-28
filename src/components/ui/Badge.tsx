@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { cn, rankTierToName, rankTierColor, rankTierIconUrl } from "@/lib/utils";
+import { cn, rankTierToName, rankTierColor, rankTierMedalUrl, rankTierStarUrl } from "@/lib/utils";
 
 type Tone = "neutral" | "win" | "loss" | "teal" | "gold" | "purple" | "orange";
 
@@ -71,6 +71,7 @@ export function RankBadge({
   const color = rankTierColor(rankTier);
   const name = rankTierToName(rankTier);
   const iconPx = size === "md" ? 20 : 16;
+  const starUrl = rankTierStarUrl(rankTier);
 
   return (
     <span
@@ -80,16 +81,26 @@ export function RankBadge({
       )}
       style={{ color }}
     >
-      <Image
-        src={rankTierIconUrl(rankTier)}
-        alt=""
-        width={iconPx}
-        height={iconPx}
-        className="shrink-0"
-        unoptimized
-        priority
-        aria-hidden
-      />
+      <span className="relative shrink-0" style={{ width: iconPx, height: iconPx }} aria-hidden>
+        <Image
+          src={rankTierMedalUrl(rankTier)}
+          alt=""
+          fill
+          className="object-contain"
+          unoptimized
+          priority
+        />
+        {starUrl && (
+          <Image
+            src={starUrl}
+            alt=""
+            fill
+            className="object-contain"
+            unoptimized
+            priority
+          />
+        )}
+      </span>
       {name}
       {leaderboardRank ? (
         <span className="text-text-muted font-mono tabular-nums">#{leaderboardRank}</span>

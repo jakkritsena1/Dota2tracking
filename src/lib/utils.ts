@@ -91,72 +91,26 @@ export function rankTierColor(rankTier: number | null): string {
   return RANK_COLORS[Math.min(8, Math.floor(rankTier / 10))] ?? RANK_COLORS[0];
 }
 
-// Rank medal icon images. Neither STRATZ's GraphQL schema nor its CDN
-// (cdn.stratz.com) expose these, and no candidate path on Valve's own CDN
-// (cdn.cloudflare.steamstatic.com) resolved either — every one checked
-// 404'd. These URLs are the Dota 2 Wiki's mirror of Valve's original
-// SeasonalRank{bracket}-{star}.png / SeasonalRankTop{n}.png game assets,
-// resolved individually via MediaWiki's imageinfo API (not guessed —
-// every entry below was confirmed to return a live image on 2026-08-25).
-//
-// Fandom's CDN hotlink-protects these (200 with a dota2.fandom.com Referer,
-// 404 with any other) — confirmed with curl, not assumed — so they can't be
-// used as a direct <img src>. /api/rank-icon/[key] fetches them server-side
-// with the right Referer and re-serves the bytes from our own origin;
-// rankTierIconUrl() below points at that route, not at wikia directly.
-export const RANK_ICON_URLS: Record<string, string> = {
-  "0-0": "https://static.wikia.nocookie.net/dota2_gamepedia/images/e/e7/SeasonalRank0-0.png/revision/latest",
-  "1-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/85/SeasonalRank1-1.png/revision/latest",
-  "1-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/e/ee/SeasonalRank1-2.png/revision/latest",
-  "1-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/0/05/SeasonalRank1-3.png/revision/latest",
-  "1-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6d/SeasonalRank1-4.png/revision/latest",
-  "1-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/2/2b/SeasonalRank1-5.png/revision/latest",
-  "2-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/c/c7/SeasonalRank2-1.png/revision/latest",
-  "2-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/2/2c/SeasonalRank2-2.png/revision/latest",
-  "2-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/f/f5/SeasonalRank2-3.png/revision/latest",
-  "2-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/b/b4/SeasonalRank2-4.png/revision/latest",
-  "2-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/3/32/SeasonalRank2-5.png/revision/latest",
-  "3-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/82/SeasonalRank3-1.png/revision/latest",
-  "3-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6e/SeasonalRank3-2.png/revision/latest",
-  "3-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/6/67/SeasonalRank3-3.png/revision/latest",
-  "3-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/87/SeasonalRank3-4.png/revision/latest",
-  "3-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/b/b1/SeasonalRank3-5.png/revision/latest",
-  "4-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/7/76/SeasonalRank4-1.png/revision/latest",
-  "4-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/87/SeasonalRank4-2.png/revision/latest",
-  "4-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/6/60/SeasonalRank4-3.png/revision/latest",
-  "4-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/4/4a/SeasonalRank4-4.png/revision/latest",
-  "4-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a3/SeasonalRank4-5.png/revision/latest",
-  "5-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/7/79/SeasonalRank5-1.png/revision/latest",
-  "5-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/5/52/SeasonalRank5-2.png/revision/latest",
-  "5-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/88/SeasonalRank5-3.png/revision/latest",
-  "5-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/2/25/SeasonalRank5-4.png/revision/latest",
-  "5-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/8e/SeasonalRank5-5.png/revision/latest",
-  "6-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/e/e0/SeasonalRank6-1.png/revision/latest",
-  "6-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/1/1c/SeasonalRank6-2.png/revision/latest",
-  "6-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/d/da/SeasonalRank6-3.png/revision/latest",
-  "6-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/d/db/SeasonalRank6-4.png/revision/latest",
-  "6-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/4/47/SeasonalRank6-5.png/revision/latest",
-  "7-1": "https://static.wikia.nocookie.net/dota2_gamepedia/images/b/b7/SeasonalRank7-1.png/revision/latest",
-  "7-2": "https://static.wikia.nocookie.net/dota2_gamepedia/images/8/8f/SeasonalRank7-2.png/revision/latest",
-  "7-3": "https://static.wikia.nocookie.net/dota2_gamepedia/images/f/fd/SeasonalRank7-3.png/revision/latest",
-  "7-4": "https://static.wikia.nocookie.net/dota2_gamepedia/images/1/13/SeasonalRank7-4.png/revision/latest",
-  "7-5": "https://static.wikia.nocookie.net/dota2_gamepedia/images/3/33/SeasonalRank7-5.png/revision/latest",
-  "8-0": "https://static.wikia.nocookie.net/dota2_gamepedia/images/f/f2/SeasonalRankTop0.png/revision/latest",
-};
-
-export function rankTierIconKey(rankTier: number | null): string {
-  if (!rankTier) return "0-0";
-  const bracket = Math.min(8, Math.floor(rankTier / 10));
-  if (bracket >= 8) return "8-0";
-  const stars = Math.min(5, Math.max(1, rankTier % 10 || 1));
-  const key = `${bracket}-${stars}`;
-  return key in RANK_ICON_URLS ? key : "0-0";
+// Rank medal icon images — real STRATZ CDN, found directly in STRATZ's own
+// rendered page markup (an <svg> layering a medal_{bracket}.png under a
+// star_{count}.png), not guessed: every path below was curl-verified to
+// return 200, with no hotlink protection (unlike the Fandom wiki mirror
+// this used before finding these — cdn.stratz.com already serves our
+// hero/item/ability icons directly with no proxy needed, and rank medals
+// are no different).
+export function rankTierMedalUrl(rankTier: number | null): string {
+  const bracket = !rankTier ? 0 : Math.min(8, Math.floor(rankTier / 10));
+  return `https://cdn.stratz.com/images/dota2/seasonal_rank/medal_${bracket}.png`;
 }
 
-/** Same-origin path — routes through /api/rank-icon so the browser never
- * hits Fandom's hotlink-protected CDN directly. */
-export function rankTierIconUrl(rankTier: number | null): string {
-  return `/api/rank-icon/${rankTierIconKey(rankTier)}`;
+/** Immortal (bracket 8) has no star overlay — leaderboard position is
+ * shown separately via RankBadge's `leaderboardRank` prop instead. */
+export function rankTierStarUrl(rankTier: number | null): string | null {
+  if (!rankTier) return null;
+  const bracket = Math.min(8, Math.floor(rankTier / 10));
+  if (bracket >= 8) return null;
+  const stars = Math.min(5, Math.max(1, rankTier % 10 || 1));
+  return `https://cdn.stratz.com/images/dota2/seasonal_rank/star_${stars}.png`;
 }
 
 export function rankTierToMmr(rankTier: number | null): number {

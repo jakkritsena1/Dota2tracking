@@ -1,10 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// /api/rank-icon is a public asset proxy (generic rank medal images, not
-// user data) — gating it behind auth would just make the browser carry
-// session cookies for a static image with no privacy reason to.
-const PUBLIC_PATHS = ["/login", "/auth/steam", "/auth/steam/callback", "/api/rank-icon"];
+const PUBLIC_PATHS = ["/login", "/auth/steam", "/auth/steam/callback"];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
