@@ -270,7 +270,11 @@ function laneOutcomeLabel(outcome: "win" | "tie" | "loss"): string {
 function NetworthTimeline({ data }: { data: number[] }) {
   const max = Math.max(...data.map(Math.abs), 1);
   const height = 80;
-  const width = Math.max(data.length * 4, 200);
+  // Fixed viewBox scaled to the card's actual width via
+  // preserveAspectRatio="none" + w-full, not a literal pixel width sized to
+  // data length — that pattern left a gap of empty card on shorter matches
+  // instead of filling the available width.
+  const width = 1000;
 
   const midY = height / 2;
   const coords = data.map((v, i) => {
@@ -298,21 +302,29 @@ function NetworthTimeline({ data }: { data: number[] }) {
   const gradientId = throwMin ? "personal-nw-throw" : "personal-nw-normal";
 
   return (
-    <div className="scroll-x">
-      <svg
-        width={width}
-        height={height + 20}
-        aria-label="กราฟ net worth ตลอดเกม"
-        role="img"
-      >
-        <defs>
+    <svg
+      viewBox={`0 0 ${width} ${height + 20}`}
+      preserveAspectRatio="none"
+      className="w-full h-[100px]"
+      aria-label="กราฟ net worth ตลอดเกม"
+      role="img"
+    >
+      <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={lineColor} stopOpacity="0.5" />
             <stop offset="100%" stopColor={lineColor} stopOpacity="0.05" />
           </linearGradient>
         </defs>
 
-        <line x1={0} y1={midY} x2={width} y2={midY} stroke="#262626" strokeWidth={1} />
+        <line
+          x1={0}
+          y1={midY}
+          x2={width}
+          y2={midY}
+          stroke="#262626"
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
+        />
 
         <path d={areaPath} fill={`url(#${gradientId})`} />
 
@@ -321,6 +333,7 @@ function NetworthTimeline({ data }: { data: number[] }) {
           fill="none"
           stroke={lineColor}
           strokeWidth={2}
+          vectorEffect="non-scaling-stroke"
         />
 
         {throwMin !== null && (
@@ -333,6 +346,7 @@ function NetworthTimeline({ data }: { data: number[] }) {
               stroke="#EC041F"
               strokeWidth={1.5}
               strokeDasharray="4 2"
+              vectorEffect="non-scaling-stroke"
             />
             <text
               x={(throwMin / (data.length - 1)) * width + 3}
@@ -356,8 +370,7 @@ function NetworthTimeline({ data }: { data: number[] }) {
           >
             {min}m
           </text>
-        ))}
-      </svg>
-    </div>
+      ))}
+    </svg>
   );
 }

@@ -13,6 +13,15 @@ interface TeamNetWorthChartProps {
 
 type Metric = "networth" | "xp";
 
+// Fixed viewBox coordinate space, scaled to the card's actual rendered width
+// via preserveAspectRatio="none" + className="w-full" — the same pattern
+// WinProbabilityChart already uses. The previous version set a literal
+// pixel `width` sized to the data length (min 320px), which left a big gap
+// of empty card on any match shorter than the card was wide instead of
+// filling it — that's the "แสดงผลไม่เต็ม" (doesn't display full) bug.
+const W = 1000;
+const H = 140;
+
 export default function TeamNetWorthChart({
   radiantNetworthLeads,
   radiantExperienceLeads,
@@ -26,18 +35,16 @@ export default function TeamNetWorthChart({
   if (data.length < 2) return null;
 
   const max = Math.max(1, ...data.map((v) => Math.abs(v)));
-  const width = Math.max(data.length * 8, 320);
-  const height = 140;
-  const midY = height / 2;
+  const midY = H / 2;
 
   const scaleY = (v: number) => midY - (v / max) * (midY - 8);
-  const scaleX = (i: number) => (i / (data.length - 1)) * width;
+  const scaleX = (i: number) => (i / (data.length - 1)) * W;
 
   function handleMove(e: React.MouseEvent<SVGSVGElement>) {
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const relX = ((e.clientX - rect.left) / rect.width) * width;
-    const i = Math.round((relX / width) * (data.length - 1));
+    const relX = ((e.clientX - rect.left) / rect.width) * W;
+    const i = Math.round((relX / W) * (data.length - 1));
     setHover(i >= 0 && i < data.length ? i : null);
   }
 
@@ -80,84 +87,99 @@ export default function TeamNetWorthChart({
         }
       />
       <div className="p-4">
-        <div className="scroll-x">
-          <svg
-            ref={svgRef}
-            width={width}
-            height={height + 20}
-            aria-label="กราฟเทียบสองทีม"
-            role="img"
-            onMouseMove={handleMove}
-            onMouseLeave={() => setHover(null)}
-          >
-            <defs>
-              <linearGradient id="nw-win-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2ACB4F" stopOpacity="0.55" />
-                <stop offset="100%" stopColor="#2ACB4F" stopOpacity="0.06" />
-              </linearGradient>
-              <linearGradient id="nw-loss-fill" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#EC041F" stopOpacity="0.55" />
-                <stop offset="100%" stopColor="#EC041F" stopOpacity="0.06" />
-              </linearGradient>
-              <clipPath id="nw-clip-up">
-                <rect x={0} y={0} width={width} height={midY} />
-              </clipPath>
-              <clipPath id="nw-clip-down">
-                <rect x={0} y={midY} width={width} height={height - midY} />
-              </clipPath>
-            </defs>
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${H + 20}`}
+          preserveAspectRatio="none"
+          className="w-full h-[160px]"
+          aria-label="กราฟเทียบสองทีม"
+          role="img"
+          onMouseMove={handleMove}
+          onMouseLeave={() => setHover(null)}
+        >
+          <defs>
+            <linearGradient id="nw-win-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#2ACB4F" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#2ACB4F" stopOpacity="0.06" />
+            </linearGradient>
+            <linearGradient id="nw-loss-fill" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="#EC041F" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#EC041F" stopOpacity="0.06" />
+            </linearGradient>
+            <clipPath id="nw-clip-up">
+              <rect x={0} y={0} width={W} height={midY} />
+            </clipPath>
+            <clipPath id="nw-clip-down">
+              <rect x={0} y={midY} width={W} height={H - midY} />
+            </clipPath>
+          </defs>
 
-            <line x1={0} y1={midY} x2={width} y2={midY} stroke="#262626" strokeWidth={1} />
+          <line
+            x1={0}
+            y1={midY}
+            x2={W}
+            y2={midY}
+            stroke="#262626"
+            strokeWidth={1}
+            vectorEffect="non-scaling-stroke"
+          />
 
-            <path d={positiveArea} fill="url(#nw-win-fill)" />
-            <path d={negativeArea} fill="url(#nw-loss-fill)" />
+          <path d={positiveArea} fill="url(#nw-win-fill)" />
+          <path d={negativeArea} fill="url(#nw-loss-fill)" />
 
-            <polyline
-              points={linePoints}
-              fill="none"
-              stroke="#2ACB4F"
-              strokeWidth={2}
-              clipPath="url(#nw-clip-up)"
-              vectorEffect="non-scaling-stroke"
-            />
-            <polyline
-              points={linePoints}
-              fill="none"
-              stroke="#EC041F"
-              strokeWidth={2}
-              clipPath="url(#nw-clip-down)"
-              vectorEffect="non-scaling-stroke"
-            />
+          <polyline
+            points={linePoints}
+            fill="none"
+            stroke="#2ACB4F"
+            strokeWidth={2}
+            clipPath="url(#nw-clip-up)"
+            vectorEffect="non-scaling-stroke"
+          />
+          <polyline
+            points={linePoints}
+            fill="none"
+            stroke="#EC041F"
+            strokeWidth={2}
+            clipPath="url(#nw-clip-down)"
+            vectorEffect="non-scaling-stroke"
+          />
 
-            {[10, 20, 30, 40, 50].filter((m) => m < data.length).map((min) => (
-              <text key={min} x={scaleX(min)} y={height + 14} fill="#5C5C5C" fontSize={10} textAnchor="middle">
-                {min}m
-              </text>
-            ))}
+          {[10, 20, 30, 40, 50].filter((m) => m < data.length).map((min) => (
+            <text
+              key={min}
+              x={scaleX(min)}
+              y={H + 14}
+              fill="#5C5C5C"
+              fontSize={10}
+              textAnchor="middle"
+            >
+              {min}m
+            </text>
+          ))}
 
-            {hover !== null && (
-              <g pointerEvents="none">
-                <line
-                  x1={scaleX(hover)}
-                  x2={scaleX(hover)}
-                  y1={0}
-                  y2={height}
-                  stroke="rgba(255,255,255,0.25)"
-                  strokeWidth={1}
-                  vectorEffect="non-scaling-stroke"
-                />
-                <circle
-                  cx={scaleX(hover)}
-                  cy={scaleY(data[hover])}
-                  r={4}
-                  fill={data[hover] >= 0 ? "#2ACB4F" : "#EC041F"}
-                  stroke="#0A0A0A"
-                  strokeWidth={1.5}
-                />
-              </g>
-            )}
-          </svg>
-        </div>
+          {hover !== null && (
+            <g pointerEvents="none">
+              <line
+                x1={scaleX(hover)}
+                x2={scaleX(hover)}
+                y1={0}
+                y2={H}
+                stroke="rgba(255,255,255,0.25)"
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+              <circle
+                cx={scaleX(hover)}
+                cy={scaleY(data[hover])}
+                r={4}
+                fill={data[hover] >= 0 ? "#2ACB4F" : "#EC041F"}
+                stroke="#0A0A0A"
+                strokeWidth={1.5}
+                vectorEffect="non-scaling-stroke"
+              />
+            </g>
+          )}
+        </svg>
 
         <div className="flex items-center justify-between mt-1.5 text-xs h-4">
           {hover !== null ? (
